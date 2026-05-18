@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Основы Frontend-разработки | Полный курс</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    :root {
+      --bg-body: #0a0c10; --bg-sidebar: #11141c; --bg-card: #1a1f2a;
+      --accent: #6c5ce7; --accent-glow: #8a75f5; --text-primary: #f0f3f8;
+      --text-secondary: #a0a8b8; --border: #2a2f3a; --success: #00b894;
+      --error: #ff7675; --warning: #fdcb6e; --shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+      --radius-lg: 24px; --radius-md: 16px; --transition: all 0.25s ease;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-body); color: var(--text-primary);
+      display: flex; min-height: 100vh; overflow-x: hidden; line-height: 1.7;
+    }
+    
+    /* === STICKY SIDEBAR === */
+    .final-project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 2rem;
+      background: var(--success);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+    }
+
+    .final-project-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+      background: #00a384;
+    }
+    .sidebar {
+      width: 320px; background: var(--bg-sidebar); backdrop-filter: blur(10px);
+      border-right: 1px solid var(--border); padding: 1.5rem 1rem;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      z-index: 100; transition: transform 0.3s ease;
+      scrollbar-width: thin; scrollbar-color: var(--accent) var(--bg-sidebar);
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+    
+    .logo { 
+      font-size: 1.5rem; font-weight: 800; 
+      background: linear-gradient(135deg, var(--accent), #a29bfe, #00cec9);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      margin-bottom: 2rem; padding: 0.5rem 0.5rem 0.5rem 0; 
+      border-bottom: 2px solid rgba(108, 92, 231, 0.3);
+    }
+    .course-title { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem; }
+    
+    .nav-section { margin-bottom: 1.8rem; }
+    .nav-title { 
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.2px; 
+      color: var(--text-secondary); margin-bottom: 1rem; padding-left: 0.5rem;
+      font-weight: 600;
+    }
+    .nav-item { 
+      display: flex; align-items: center; gap: 12px; padding: 0.75rem 0.9rem; 
+      margin: 4px 0; border-radius: 14px; cursor: pointer; transition: var(--transition); 
+      color: var(--text-secondary); font-weight: 500; font-size: 0.92rem;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { 
+      background: rgba(108, 92, 231, 0.25); color: var(--text-primary); 
+      border-left-color: var(--accent); transform: translateX(3px);
+    }
+    .nav-item.active { 
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.4), rgba(108, 92, 231, 0.2)); 
+      color: white; border-left-color: var(--accent); 
+      box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    }
+    .nav-item i { width: 24px; font-style: normal; font-weight: 600; text-align: center; }
+    
+    .main-content { 
+      flex: 1; margin-left: 320px; padding: 2.5rem 3rem 5rem; 
+      transition: margin 0.3s ease;
+    }
+    
+    .page { display: none; animation: fadeSlideUp 0.4s ease-out; }
+    .page.active-page { display: block; }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .card { 
+      background: var(--bg-card); border-radius: var(--radius-lg);
+      padding: 2.5rem; margin-bottom: 2.5rem; 
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+    }
+    
+    /* === STICKY LECTURE NAVBAR === */
+    .lecture-navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 1.5rem; margin-bottom: 2rem;
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.15), rgba(108, 92, 231, 0.05));
+      border-radius: var(--radius-md); border: 1px solid var(--border);
+      flex-wrap: wrap; gap: 0.8rem;
+      position: sticky; top: 20px; z-index: 50;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .nav-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0.7rem 1.4rem; background: var(--accent);
+      color: white; border: none; border-radius: 50px;
+      cursor: pointer; transition: var(--transition); font-weight: 600;
+      font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+    .nav-btn:hover { 
+      background: var(--accent-glow); transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
+    }
+    .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .nav-btn.secondary { 
+      background: transparent; border: 2px solid var(--accent); color: var(--accent); 
+      box-shadow: none;
+    }
+    .nav-btn.secondary:hover { background: rgba(108, 92, 231, 0.15); }
+    .nav-btn.practice { background: var(--success); box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3); }
+    .nav-btn.practice:hover { background: #00a384; }
+    
+    h1 { 
+      font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); 
+      padding-bottom: 0.8rem; border-bottom: 2px solid var(--border);
+    }
+    h2 { font-size: 1.6rem; margin: 2rem 0 1.2rem; color: var(--text-primary); }
+    h3 { font-size: 1.35rem; margin: 1.5rem 0 1rem; color: var(--accent); }
+    h4 { font-size: 1.15rem; margin: 1.2rem 0 0.8rem; color: var(--text-primary); }
+    p, li { line-height: 1.8; color: var(--text-secondary); margin-bottom: 0.7rem; font-size: 1.02rem; }
+    ul, ol { margin-left: 1.8rem; margin-bottom: 1.2rem; }
+    
+    code { 
+      background: #0e1118; padding: 3px 8px; border-radius: 5px;
+      font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.92em; 
+      color: #a29bfe; border: 1px solid var(--border);
+    }
+    .code-block {
+      background: #0e1118; padding: 1.5rem; border-radius: var(--radius-md);
+      font-family: 'Fira Code', monospace; font-size: 0.9rem; margin: 1.5rem 0;
+      border-left: 5px solid var(--accent); overflow-x: auto; white-space: pre-wrap;
+      line-height: 1.6; border: 1px solid var(--border);
+    }
+    
+    table { 
+      width: 100%; border-collapse: collapse; margin: 1.5rem 0; 
+      background: #0e1118; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    th, td { border: 1px solid var(--border); padding: 12px 15px; text-align: left; }
+    th { background: linear-gradient(135deg, var(--accent), #5a4fcf); color: white; font-weight: 600; }
+    tr:nth-child(even) { background: rgba(108, 92, 231, 0.08); }
+    tr:hover { background: rgba(108, 92, 231, 0.15); }
+    
+    .practice-section { 
+      background: linear-gradient(135deg, rgba(0, 184, 148, 0.15), rgba(0, 184, 148, 0.08)); 
+      border: 2px solid var(--success); border-radius: var(--radius-md); 
+      padding: 1.5rem; margin: 2rem 0;
+    }
+    .practice-section h3 { color: var(--success); margin-top: 0; }
+    
+    .figure { margin: 2rem 0; text-align: center; }
+    .figure img { 
+      max-width: 100%; height: auto; border-radius: var(--radius-md); 
+      border: 3px solid var(--border); box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+    .figure img:hover { transform: scale(1.02); }
+    .figure-caption { 
+      font-size: 0.95rem; color: var(--text-secondary); margin-top: 0.8rem; 
+      font-style: italic; padding: 0.5rem; background: rgba(108, 92, 231, 0.1);
+      border-radius: 8px;
+    }
+    .figure-number { 
+      font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; 
+      font-size: 1.05rem;
+    }
+    
+    .toc { 
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.15), rgba(108, 92, 231, 0.08)); 
+      border-left: 4px solid var(--accent); padding: 1.5rem 2rem; 
+      margin: 1.5rem 0; border-radius: 0 16px 16px 0;
+    }
+    .toc ol { margin: 0.8rem 0 0 2rem; }
+    .toc li { margin-bottom: 0.5rem; }
+    
+    .note { 
+      background: linear-gradient(135deg, rgba(253, 203, 110, 0.2), rgba(253, 203, 110, 0.1)); 
+      border-left: 4px solid var(--warning); padding: 1.2rem 1.5rem; 
+      margin: 1.5rem 0; border-radius: 0 12px 12px 0; font-size: 1rem;
+    }
+    
+    /* === TEST STYLES === */
+    .question-card { 
+      background: var(--bg-card); border-radius: var(--radius-md); 
+      padding: 2rem; border: 2px solid var(--border); margin-bottom: 2rem;
+      transition: border-color 0.3s ease;
+    }
+    .question-card:hover { border-color: var(--accent); }
+    
+    .options-list { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
+    
+    .quiz-option-label { 
+      display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; 
+      border-radius: 12px; background: #0e1118; border: 2px solid var(--border); 
+      cursor: pointer; transition: all 0.25s ease;
+    }
+    .quiz-option-label:hover { 
+      border-color: var(--accent); background: rgba(108, 92, 231, 0.12); 
+      transform: translateX(4px);
+    }
+    .quiz-option-label input { 
+      margin-top: 5px; width: 20px; height: 20px; accent-color: var(--accent); 
+      flex-shrink: 0; cursor: pointer;
+    }
+    
+    .correct-highlight { 
+      background: rgba(0, 184, 148, 0.25) !important; 
+      border-color: var(--success) !important; 
+      box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.2);
+    }
+    .wrong-highlight { 
+      background: rgba(255, 118, 117, 0.25) !important; 
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 3px rgba(255, 118, 117, 0.2);
+    }
+    .disabled-opt { opacity: 0.75; cursor: default; }
+    
+    .match-grid { 
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.5rem; 
+      align-items: center; margin-top: 1rem; padding: 1rem;
+      background: rgba(108, 92, 231, 0.08); border-radius: 12px;
+    }
+    .match-col { display: flex; flex-direction: column; gap: 0.8rem; }
+    .match-item { 
+      padding: 12px 16px; background: #0e1118; border: 2px solid var(--border); 
+      border-radius: 10px; font-size: 0.98rem; font-weight: 500;
+      transition: border-color 0.2s;
+    }
+    .match-item:hover { border-color: var(--accent); }
+    .match-select { 
+      padding: 12px 16px; background: #0e1118; border: 2px solid var(--border); 
+      border-radius: 10px; color: var(--text-primary); font-size: 0.98rem; 
+      width: 100%; cursor: pointer; transition: border-color 0.2s;
+    }
+    .match-select:hover, .match-select:focus { border-color: var(--accent); outline: none; }
+    .match-arrow { color: var(--accent); font-size: 1.8rem; font-weight: bold; }
+    
+    .feedback { 
+      margin-top: 1.5rem; padding: 1.2rem 1.5rem; 
+      background: rgba(108, 92, 231, 0.2); border-radius: 12px; 
+      border-left: 4px solid var(--accent);
+    }
+    
+    .page-btn { 
+      background: var(--bg-card); border: 2px solid var(--border);
+      padding: 10px 20px; border-radius: 50px; cursor: pointer;
+      transition: var(--transition); font-weight: 600; color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+    .page-btn.active-page-btn { 
+      background: var(--accent); border-color: var(--accent); color: white; 
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+    }
+    .page-btn:hover:not(.active-page-btn) { 
+      background: #2a2f3f; border-color: var(--accent); 
+      transform: translateY(-2px);
+    }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    
+    .pagination { 
+      display: flex; justify-content: center; gap: 10px; margin-top: 2.5rem; 
+      flex-wrap: wrap;
+    }
+    
+    /* === COMPARISON LECTURE STYLES === */
+    .comparison-table { 
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), transparent); 
+      border-radius: 16px; padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .tech-card { 
+      display: flex; gap: 1.5rem; padding: 1.5rem; margin: 1rem 0; 
+      background: #0e1118; border-radius: 14px; border: 1px solid var(--border);
+      align-items: center;
+    }
+    .tech-icon { 
+      font-size: 3rem; width: 80px; height: 80px; display: flex; 
+      align-items: center; justify-content: center; 
+      background: linear-gradient(135deg, var(--accent), #a29bfe);
+      border-radius: 20px; color: white; font-weight: bold;
+      flex-shrink: 0;
+    }
+    .tech-info h4 { margin: 0 0 0.5rem 0; color: var(--text-primary); }
+    .tech-info p { margin: 0; color: var(--text-secondary); }
+    
+    .analogy-box { 
+      background: linear-gradient(135deg, rgba(253, 203, 110, 0.15), rgba(253, 203, 110, 0.08)); 
+      border: 2px dashed var(--warning); border-radius: 16px; 
+      padding: 2rem; margin: 2rem 0; text-align: center;
+    }
+    
+    @media (max-width: 1100px) {
+      .sidebar { transform: translateX(-100%); width: 300px; }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; padding: 1.5rem; }
+      .menu-toggle { 
+        display: block; position: fixed; top: 1.2rem; left: 1.2rem; z-index: 200;
+        background: var(--accent); border: none; color: white;
+        padding: 0.7rem 1.2rem; border-radius: 50px; cursor: pointer;
+        font-weight: 600; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+      }
+      .match-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .match-arrow { transform: rotate(90deg); }
+      .lecture-navbar { position: relative; top: 0; }
+    }
+    .menu-toggle { display: none; }
+    
+    hr { border-color: var(--border); margin: 2.5rem 0; border-width: 2px; }
+    
+    .highlight { 
+      background: rgba(108, 92, 231, 0.25); padding: 3px 8px; 
+      border-radius: 5px; font-weight: 500; color: var(--accent-glow);
+    }
+    
+    .key-point { 
+      background: rgba(0, 184, 148, 0.12); border-left: 4px solid var(--success);
+      padding: 1rem 1.5rem; margin: 1rem 0; border-radius: 0 10px 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle">☰ Меню</button>
+
+<div class="sidebar" id="sidebar">
+  <div class="logo">
+    🎓 Основы Frontend-разработки
+    <div class="course-title">Полный курс от основ до React</div>
+  </div>
+  
+  <div class="nav-section">
+    <div class="nav-title">📚 ЛЕКЦИИ</div>
+    <div class="nav-item" data-page="lecture1">📄 ① Основы HTML</div>
+    <div class="nav-item" data-page="lecture2">🎨 ② Основы CSS</div>
+    <div class="nav-item" data-page="lecture3">⚡ ③ Основы JavaScript</div>
+    <div class="nav-item" data-page="lecture3.5">⚖️ ④ HTML vs CSS vs JS</div>
+    <div class="nav-item" data-page="lecture4">🌐 ⑤ JS: DOM и события</div>
+    <div class="nav-item" data-page="lecture5">⚛️ ⑥ Введение в React</div>
+    <div class="nav-item" data-page="lecture6">🔄 ⑦ React: Хуки и роутинг</div>
+  </div>
+  
+  <div class="nav-section">
+    <div class="nav-title">🧪 ПРАКТИКА</div>
+    <div class="nav-item" data-page="practice1">🛠️ Практика 1: HTML</div>
+    <div class="nav-item" data-page="practice2">🎨 Практика 2: CSS</div>
+    <div class="nav-item" data-page="practice3">⚡ Практика 3: JS</div>
+    <div class="nav-item" data-page="practice3.5">⚖️ Практика 3.5: Сравнение</div>
+    <div class="nav-item" data-page="practice4">🌐 Практика 4: DOM</div>
+    <div class="nav-item" data-page="practice5">⚛️ Практика 5: React Basics</div>
+    <div class="nav-item" data-page="practice6">🔄 Практика 6: React Hooks</div>
+  </div>
+  
+  <div class="nav-section">
+    <div class="nav-title">🏆 ФИНАЛЬНЫЕ ПРОЕКТЫ</div>
+    <div class="nav-item" data-page="project1">📚 Книжный магазин</div>
+    <div class="nav-item" data-page="project2">💪 Фитнес-трекер</div>
+  </div>
+  
+  <div class="nav-section">
+    <div class="nav-title">📝 ПРОВЕРКА ЗНАНИЙ</div>
+    <div class="nav-item" data-page="tests">✅ Тест: 70 вопросов</div>
+  </div>
+</div>
+
+<div class="main-content" id="mainContent">
+
+  <!-- ========== ЛЕКЦИЯ 1: HTML ========== -->
+  <div id="lecture1" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" disabled>← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice1">🛠️ Практика 1</button>
+        <button class="nav-btn" data-page="lecture2">Следующая лекция →</button>
+      </div>
+      
+      <h1>📖 ЛЕКЦИЯ 1. ОСНОВЫ HTML: СТРУКТУРА, СИНТАКСИС, КЛЮЧЕВЫЕ ЭЛЕМЕНТЫ</h1>
+      
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Определение HTML, история создания и область применения</li>
+          <li>Обязательные структурные элементы и их назначение</li>
+          <li>Понятие тега и атрибута. Классификация тегов</li>
+          <li>Теги форматирования, списков, таблиц, ссылок, изображений</li>
+          <li>Подключение JavaScript и метатеги</li>
+          <li>Семантическая разметка и доступность</li>
+        </ol>
+      </div>
+
+      <h3>1.1 Определение HTML, история и применение</h3>
+      <p><strong>HTML (HyperText Markup Language)</strong> — стандартный язык разметки документов во Всемирной паутине. Это не язык программирования, а язык <em>разметки</em>, который описывает структуру и семантику контента.</p>
+      
+      <p>HTML интерпретируется браузером и отображается в виде документа, удобного для восприятия человеком. Браузер читает теги и строит на их основе объектную модель документа (DOM), которую затем можно стилизовать и модифицировать.</p>
+      
+      <div class="figure">
+        <img src="images/1.jpg" alt="Тим Бернерс-Ли — создатель HTML" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Тим+Бернерс-Ли'">
+        <div class="figure-number">Рисунок 1</div>
+        <div class="figure-caption">Создатель HTML — Тим Бернерс-Ли (1991)</div>
+      </div>
+
+      <p>Язык был разработан британским учёным <strong>Тимом Бернерсом-Ли</strong> в 1991-1992 годах в Европейском совете по ядерным исследованиям (ЦЕРН, Женева). Первоначальная цель — упростить обмен научной документацией между исследователями по всему миру.</p>
+      
+      <p>Решение проблемы сложности языка SGML достигалось путём определения небольшого набора структурных и семантических элементов — дескрипторов (тегов). Это сделало язык доступным для людей без глубоких технических знаний.</p>
+      
+      <div class="figure">
+        <img src="images/2.jpg" alt="Первый в мире веб-сайт" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Первый+веб-сайт'">
+        <div class="figure-number">Рисунок 2</div>
+        <div class="figure-caption">Первый в мире веб-сайт (info.cern.ch)</div>
+      </div>
+
+      <p><strong>Ключевые возможности современного HTML5:</strong></p>
+      <ul>
+        <li>✅ Создание структурированного, семантически правильного документа</li>
+        <li>✅ Реализация гипертекстовых переходов (ссылки)</li>
+        <li>✅ Встраивание мультимедиа: изображения, аудио, видео, SVG</li>
+        <li>✅ Создание таблиц, списков, форм для ввода данных</li>
+        <li>✅ Форматирование без жёсткой привязки к отображению</li>
+        <li>✅ Совместимость с любым устройством и браузером</li>
+        <li>✅ Интеграция с CSS для стилизации и JavaScript для интерактивности</li>
+        <li>✅ Поддержка доступности (accessibility) для скринридеров</li>
+      </ul>
+
+      <h3>1.2 Обязательные структурные элементы</h3>
+      
+      <div class="figure">
+        <img src="images/3.jpg" alt="Минимальная структура HTML-документа" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Структура+HTML'">
+        <div class="figure-number">Рисунок 3</div>
+        <div class="figure-caption">Минимальная структура корректного HTML5-документа</div>
+      </div>
+
+      <div class="code-block">&lt;!DOCTYPE html&gt;  &lt;!-- Декларация версии HTML5 --&gt;
+&lt;html lang="ru"&gt;   &lt;!-- Корневой элемент с указанием языка --&gt;
+  &lt;head&gt;            &lt;!-- Заголовочная часть (метаданные) --&gt;
+    &lt;meta charset="UTF-8"&gt;  &lt;!-- Кодировка для поддержки кириллицы --&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Заголовок вкладки браузера&lt;/title&gt;
+    &lt;meta name="description" content="Описание страницы для SEO"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;            &lt;!-- Видимый контент страницы --&gt;
+    &lt;header&gt;
+      &lt;h1&gt;Главный заголовок страницы (один на страницу)&lt;/h1&gt;
+    &lt;/header&gt;
+    &lt;main&gt;
+      &lt;p&gt;Абзац основного текста.&lt;/p&gt;
+    &lt;/main&gt;
+    &lt;footer&gt;
+      &lt;p&gt;&amp;copy; 2024 Ваш сайт&lt;/p&gt;
+    &lt;/footer&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</div>
+
+      <table>
+        <caption>🔑 Основные теги и их назначение</caption>
+        <tr><th>Тег</th><th>Назначение</th><th>Пример</th></tr>
+        <tr><td><code>&lt;!DOCTYPE html&gt;</code></td><td>Декларация стандарта (обязателен)</td><td>Включает режим стандартов браузера</td></tr>
+        <tr><td><code>&lt;html lang="ru"&gt;</code></td><td>Корневой контейнер всего документа</td><td>lang помогает поисковикам и скринридерам</td></tr>
+        <tr><td><code>&lt;head&gt;</code></td><td>Метаданные: кодировка, SEO, стили, скрипты</td><td>Не отображается на странице</td></tr>
+        <tr><td><code>&lt;meta charset="UTF-8"&gt;</code></td><td>Кодировка для поддержки всех языков</td><td>Обязателен для кириллицы</td></tr>
+        <tr><td><code>&lt;title&gt;</code></td><td>Заголовок вкладки и результаты поиска</td><td>Важно для SEO</td></tr>
+        <tr><td><code>&lt;body&gt;</code></td><td>Всё видимое пользователю содержимое</td><td>Текст, изображения, видео</td></tr>
+        <tr><td><code>&lt;h1&gt;...&lt;h6&gt;</code></td><td>Заголовки разного уровня (иерархия)</td><td>h1 — главный, h6 — самый мелкий</td></tr>
+        <tr><td><code>&lt;p&gt;</code></td><td>Абзац текста (блочный элемент)</td><td>Автоматические отступы сверху/снизу</td></tr>
+        <tr><td><code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code></td><td>Семантические разделы страницы</td><td>Улучшают доступность и SEO</td></tr>
+      </table>
+
+      <h3>1.3 Понятие тега и атрибута</h3>
+      
+      <div class="figure">
+        <img src="images/4.jpg" alt="Структура HTML-элемента" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Структура+тега'">
+        <div class="figure-number">Рисунок 4</div>
+        <div class="figure-caption">Анатомия HTML-элемента: тег + атрибуты + контент</div>
+      </div>
+
+      <p><strong>Тег (дескриптор)</strong> — базовый элемент языка разметки, заключённый в угловые скобки <code>&lt; &gt;</code>. Текст между открывающим и закрывающим тегами получает определённое форматирование или смысловую нагрузку.</p>
+      
+      <p><strong>Классификация тегов:</strong></p>
+      <ul>
+        <li><strong>Парные теги:</strong> имеют открывающую и закрывающую часть: <code>&lt;p&gt;Текст&lt;/p&gt;</code>, <code>&lt;div&gt;...&lt;/div&gt;</code></li>
+        <li><strong>Одиночные (пустые) теги:</strong> не имеют закрывающей части: <code>&lt;img&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;hr&gt;</code>, <code>&lt;input&gt;</code>, <code>&lt;meta&gt;</code></li>
+      </ul>
+
+      <p><strong>Атрибут</strong> — дополнительное свойство тега, задающее параметры его поведения или внешнего вида. Записывается внутри открывающего тега в формате <code>имя="значение"</code>.</p>
+      
+      <div class="code-block">&lt;a href="https://example.com" target="_blank" class="link" id="main-link"&gt;
+  Текст ссылки
+&lt;/a&gt;</div>
+
+      <p>Нечисловые значения атрибутов <strong>обязательно</strong> заключаются в кавычки (одинарные или двойные). Теги и атрибуты в HTML5 нечувствительны к регистру, но стандартом считается нижний регистр.</p>
+
+      <h3>1.4 Основные группы тегов</h3>
+      
+      <h4>📋 Списки</h4>
+      <p>HTML поддерживает три типа списков:</p>
+      
+      <div class="code-block">&lt;!-- Маркированный список (unordered) --&gt;
+&lt;ul&gt;
+  &lt;li&gt;Элемент 1&lt;/li&gt;
+  &lt;li&gt;Элемент 2&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Нумерованный список (ordered) --&gt;
+&lt;ol&gt;
+  &lt;li&gt;Шаг 1&lt;/li&gt;
+  &lt;li&gt;Шаг 2&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;!-- Список определений (definition list) --&gt;
+&lt;dl&gt;
+  &lt;dt&gt;Термин&lt;/dt&gt;
+  &lt;dd&gt;Определение термина&lt;/dd&gt;
+&lt;/dl&gt;</div>
+
+      <p>Атрибут <code>type</code> позволяет менять стиль маркеров: <code>type="square"</code>, <code>type="I"</code> (римские цифры), <code>type="A"</code> (буквы).</p>
+      
+      <div class="figure">
+        <img src="images/5.jpg" alt="Примеры списков" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Списки'">
+        <div class="figure-number">Рисунок 5</div>
+        <div class="figure-caption">Различные типы списков в браузере</div>
+      </div>
+
+      <h4>🔗 Гиперссылки</h4>
+      <p>Гиперссылки создаются парным тегом <code>&lt;a&gt;</code> (anchor). Атрибут <code>href</code> указывает адрес перехода.</p>
+      
+      <div class="code-block">&lt;a href="https://google.com" target="_blank" title="Открыть Google"&gt;
+  Перейти в Google
+&lt;/a&gt;
+
+&lt;!-- Ссылка-якорь (прокрутка к элементу с id="section") --&gt;
+&lt;a href="#section"&gt;Перейти к разделу&lt;/a&gt;
+
+&lt;!-- Ссылка на email --&gt;
+&lt;a href="mailto:info@example.com"&gt;Написать нам&lt;/a&gt;
+
+&lt;!-- Ссылка на телефон --&gt;
+&lt;a href="tel:+79991234567"&gt;Позвонить&lt;/a&gt;</div>
+
+      <p><strong>Ключевые атрибуты <code>&lt;a&gt;</code>:</strong></p>
+      <ul>
+        <li><code>href</code> — адрес перехода (обязательный)</li>
+        <li><code>target="_blank"</code> — открыть в новой вкладке</li>
+        <li><code>title</code> — всплывающая подсказка при наведении</li>
+        <li><code>rel="noopener noreferrer"</code> — безопасность при target="_blank"</li>
+      </ul>
+
+      <div class="figure">
+        <img src="images/6.jpg" alt="Структура гиперссылки" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Гиперссылки'">
+        <div class="figure-number">Рисунок 6</div>
+        <div class="figure-caption">Различные типы гиперссылок</div>
+      </div>
+
+      <h4>🖼️ Изображения</h4>
+      <p>Изображения вставляются одиночным тегом <code>&lt;img&gt;</code>. Поддерживаемые форматы: GIF, JPEG, PNG, WebP, SVG.</p>
+      
+      <div class="code-block">&lt;img 
+  src="images/photo.jpg" 
+  alt="Описание изображения для доступности"
+  width="800" 
+  height="600"
+  loading="lazy"
+  title="Всплывающая подсказка"
+  class="responsive-img"
+&gt;</div>
+
+      <p><strong>Важные атрибуты:</strong></p>
+      <ul>
+        <li><code>src</code> — путь к файлу (относительный или абсолютный)</li>
+        <li><code>alt</code> — альтернативный текст (обязателен для доступности и SEO)</li>
+        <li><code>width/height</code> — размеры (предотвращают сдвиг макета при загрузке)</li>
+        <li><code>loading="lazy"</code> — отложенная загрузка (улучшает производительность)</li>
+      </ul>
+
+      <h4>📊 Таблицы</h4>
+      <p>Таблицы создаются для представления табличных данных (не для макета!).</p>
+      
+      <div class="figure">
+        <img src="images/7.jpg" alt="Пример таблицы" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Таблица'">
+        <div class="figure-number">Рисунок 7</div>
+        <div class="figure-caption">Структура HTML-таблицы</div>
+      </div>
+
+      <div class="code-block">&lt;table border="1" cellpadding="10" cellspacing="0"&gt;
+  &lt;caption&gt;Расписание уроков&lt;/caption&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Время&lt;/th&gt;
+      &lt;th&gt;Предмет&lt;/th&gt;
+      &lt;th&gt;Кабинет&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;09:00&lt;/td&gt;
+      &lt;td&gt;Математика&lt;/td&gt;
+      &lt;td&gt;101&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td colspan="2"&gt;Объединённая ячейка (2 колонки)&lt;/td&gt;
+      &lt;td rowspan="2"&gt;Вертикальное объединение&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</div>
+
+      <p><strong>Ключевые теги:</strong> <code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code> (строка), <code>&lt;th&gt;</code> (заголовок), <code>&lt;td&gt;</code> (ячейка), <code>&lt;caption&gt;</code> (подпись), <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code>, <code>&lt;tfoot&gt;</code>.</p>
+      
+      <p><strong>Атрибуты объединения:</strong> <code>colspan="N"</code> — объединение по горизонтали, <code>rowspan="N"</code> — по вертикали.</p>
+
+      <h4>⚡ Подключение JavaScript и метатеги</h4>
+      <p>Для добавления интерактивности используется тег <code>&lt;script&gt;</code>.</p>
+      
+      <div class="figure">
+        <img src="images/8.jpg" alt="Подключение скриптов" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=JavaScript'">
+        <div class="figure-number">Рисунок 8</div>
+        <div class="figure-caption">Рекомендуемые способы подключения скриптов</div>
+      </div>
+
+      <div class="code-block">&lt;!-- Рекомендуемый способ: внешний файл перед &lt;/body&gt; --&gt;
+&lt;script src="app.js" defer&gt;&lt;/script&gt;
+
+&lt;!-- Атрибут defer: скрипт выполнится после загрузки DOM --&gt;
+&lt;!-- Атрибут async: скрипт выполнится сразу после загрузки (без гарантии порядка) --&gt;
+
+&lt;!-- Внутренний скрипт (для небольших фрагментов) --&gt;
+&lt;script&gt;
+  console.log('Страница загружена');
+  document.addEventListener('DOMContentLoaded', function() {
+    // Код выполнится, когда DOM готов
+  });
+&lt;/script&gt;</div>
+
+      <p><strong>Важные метатеги в &lt;head&gt;:</strong></p>
+      <div class="code-block">&lt;meta charset="UTF-8"&gt;  &lt;!-- Кодировка (обязателен!) --&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;  &lt;!-- Адаптивность --&gt;
+&lt;meta name="description" content="Краткое описание для поисковиков"&gt;  &lt;!-- SEO --&gt;
+&lt;meta name="keywords" content="html, css, frontend, курс"&gt;  &lt;!-- Ключевые слова --&gt;
+&lt;meta name="author" content="Ваше имя"&gt;  &lt;!-- Автор --&gt;
+&lt;link rel="icon" href="favicon.ico"&gt;  &lt;!-- Иконка вкладки --&gt;</div>
+
+      <h3>1.5 Семантическая разметка и доступность</h3>
+      <p>Семантические теги (<code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;footer&gt;</code>) делают код понятнее для разработчиков, поисковиков и скринридеров.</p>
+      
+      <div class="key-point">
+        <strong>💡 Правило доступности:</strong> Всегда добавляйте <code>alt</code> к изображениям, используйте семантические теги, проверяйте контрастность цветов и поддерживайте навигацию с клавиатуры.
+      </div>
+
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>Вы изучили историю и назначение HTML, освоили обязательную структуру документа, научились работать с тегами, атрибутами, списками, таблицами, ссылками и изображениями. Вы поняли важность семантики и доступности. Эти знания — фундамент для изучения каскадных таблиц стилей (CSS) и языка программирования JavaScript, которые превратят статичную разметку в красивый и интерактивный веб-интерфейс.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice1" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture1">← Вернуться к лекции 1</button>
+        <button class="nav-btn" data-page="lecture2">Следующая лекция →</button>
+      </div>
+      <h1>🛠️ ПРАКТИКА 1: Основы HTML</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться создавать базовую структуру HTML-документа</li>
+          <li>Освоить основные теги форматирования текста</li>
+          <li>Научиться создавать списки различных типов</li>
+          <li>Освоить вставку гиперссылок и изображений</li>
+          <li>Научиться создавать и форматировать таблицы</li>
+          <li>Освоить подключение JavaScript к HTML-странице</li>
+        </ol>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Создайте HTML-документ с правильной структурой: <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code>. В секции <code>&lt;head&gt;</code> укажите кодировку UTF-8 и заголовок страницы "Моя первая веб-страница".</li>
+        <li>В теле документа создайте заголовок первого уровня <code>&lt;h1&gt;</code> с текстом "Добро пожаловать на мою страницу" и заголовок второго уровня <code>&lt;h2&gt;</code> с текстом "Мои первые шаги в HTML".</li>
+        <li>Создайте абзац <code>&lt;p&gt;</code> с произвольным текстом из 3-4 предложений. Внутри абзаца выделите одно слово жирным с помощью <code>&lt;strong&gt;</code>, одно слово курсивом с помощью <code>&lt;em&gt;</code> и одно слово подчёркнутым с помощью <code>&lt;u&gt;</code>.</li>
+        <li>Добавьте ещё один абзац, в котором используйте тег <code>&lt;br&gt;</code> для переноса строки внутри абзаца (не менее трёх переносов). Создайте горизонтальную линию с помощью тега <code>&lt;hr&gt;</code> между абзацами.</li>
+        <li>Создайте раздел с формулами. Используя <code>&lt;sub&gt;</code>, напишите формулу воды (H₂O). Используя <code>&lt;sup&gt;</code>, напишите формулу биквадратного уравнения (ax⁴ + bx² + c = 0).</li>
+        <li>Создайте маркированный список <code>&lt;ul&gt;</code> с тремя вашими любимыми книгами или фильмами. Каждый элемент списка должен быть обёрнут в <code>&lt;li&gt;</code>.</li>
+        <li>Создайте нумерованный список <code>&lt;ol&gt;</code> с пошаговой инструкцией "Как приготовить утренний кофе" (минимум 5 шагов).</li>
+        <li>Создайте вложенный список. Основной список — нумерованный (дни недели). Внутри понедельника и среды создайте маркированный список дел на эти дни (минимум 3 дела для каждого дня).</li>
+        <li>Вставьте изображение с помощью тега <code>&lt;img&gt;</code>. Используйте любую картинку из интернета (укажите реальный URL). Обязательно добавьте атрибуты alt="Описание картинки", width="300" и height="200".</li>
+        <li>Создайте гиперссылку на сайт google.com с текстом "Перейти в Google". Добавьте атрибут target="_blank", чтобы ссылка открывалась в новой вкладке.</li>
+        <li>Создайте ссылку-якорь: вверху страницы добавьте ссылку "Перейти вниз", а внизу страницы — ссылку "Наверх", при клике на которые страница прокручивается к соответствующей позиции.</li>
+        <li>Создайте изображение-ссылку. Оберните тег <code>&lt;img&gt;</code> в тег <code>&lt;a&gt;</code> так, чтобы клик по картинке вёл на сайт YouTube.</li>
+        <li>Создайте таблицу 3×3 (3 строки, 3 ячейки) с заголовками "Имя", "Возраст", "Город". Заполните таблицу данными трёх вымышленных людей. Используйте теги <code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code>, <code>&lt;td&gt;</code>, <code>&lt;th&gt;</code>.</li>
+        <li>Добавьте в эту же таблицу строку с объединением двух ячеек по горизонтали (атрибут colspan="2"). Объединённая ячейка должна содержать текст "Всего: 3 человека".</li>
+        <li>Создайте отдельную таблицу расписания уроков (минимум 4 предмета). Таблица должна иметь:
+          <ul>
+            <li>подпись <code>&lt;caption&gt;</code> "Моё расписание"</li>
+            <li>заголовочные ячейки <code>&lt;th&gt;</code> для столбцов "Время", "Предмет", "Кабинет"</li>
+            <li>атрибуты border="1", cellpadding="5", cellspacing="0"</li>
+            <li>фоновый цвет для строки-заголовка с помощью атрибута bgcolor</li>
+          </ul>
+        </li>
+        <li>Используя теги таблицы, создайте таблицу 2×2, в которой левая верхняя ячейка объединена по вертикали с левой нижней (атрибут rowspan="2"). Заполните ячейки любым текстом.</li>
+        <li>Внизу страницы создайте блок <code>&lt;div&gt;</code> с произвольным текстом. Внутри блока используйте:
+          <ul>
+            <li><code>&lt;span style="color: red;"&gt;</code> для красного текста</li>
+            <li><code>&lt;mark&gt;</code> для подсветки текста</li>
+            <li><code>&lt;small&gt;</code> для текста меньшего размера</li>
+            <li><code>&lt;del&gt;</code> для зачёркнутого текста</li>
+          </ul>
+        </li>
+        <li>Создайте три различных типа списков на одном уровне:
+          <ul>
+            <li>маркированный список с квадратными маркерами (атрибут type="square")</li>
+            <li>нумерованный список с римскими цифрами (атрибут type="I")</li>
+            <li>нумерованный список с буквами (атрибут type="A")</li>
+          </ul>
+        </li>
+        <li>Добавьте на страницу блок с цитатой. Используйте тег <code>&lt;blockquote&gt;</code> для самой цитаты и тег <code>&lt;cite&gt;</code> для указания автора. Ниже добавьте короткую цитату в строке с помощью тега <code>&lt;q&gt;</code>.</li>
+        <li>С помощью тегов <code>&lt;script&gt;</code> добавьте на страницу JavaScript, который:
+          <ul>
+            <li>выводит в консоль сообщение "Страница загружена"</li>
+            <li>выводит всплывающее окно alert("Добро пожаловать!") при загрузке страницы</li>
+          </ul>
+        </li>
+        <li><strong>🎁 Бонусное задание:</strong> Создайте таблицу размером 4×4, в которой первый столбец и первая строка будут заголовочными (с помощью <code>&lt;th&gt;</code>), а в центральных ячейках будут числа — результат умножения номера строки на номер столбца.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ЛЕКЦИЯ 2: CSS ========== -->
+  <div id="lecture2" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture1">← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice2">🛠️ Практика 2</button>
+        <button class="nav-btn" data-page="lecture3">Следующая лекция →</button>
+      </div>
+      <h1>🎨 ЛЕКЦИЯ 2. ОСНОВЫ CSS: СЕЛЕКТОРЫ, БЛОЧНАЯ МОДЕЛЬ, ПОЗИЦИОНИРОВАНИЕ</h1>
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Определение CSS, история и роль</li>
+          <li>Способы подключения CSS</li>
+          <li>Синтаксис и селекторы</li>
+          <li>Блочная модель: content, padding, border, margin</li>
+          <li>Позиционирование и display</li>
+          <li>Практика: 20+ заданий</li>
+        </ol>
+      </div>
+      <h3>2.1 Определение и история</h3>
+      <p><strong>CSS (Cascading Style Sheets)</strong> — язык описания внешнего вида документа, написанного на HTML. CSS определяет, как элементы должны отображаться на экране, бумаге или в других носителях.</p>
+      <p><em>Создатель:</em> Хокон Виум Ли (Håkon Wium Lie) в 1996 году в рамках Консорциума Всемирной паутины (W3C).</p>
+      <div class="figure">
+        <img src="images/9.jpg" alt="Хокон Виум Ли — создатель CSS" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Хокон+Виум+Ли'">
+        <div class="figure-number">Рисунок 9</div>
+        <div class="figure-caption">Создатель CSS — Хокон Виум Ли</div>
+      </div>
+      <p>Основная проблема, которую решает CSS — разделение структуры документа (HTML) и его представления (цвета, шрифты, расположение). До появления CSS веб-страницы форматировались исключительно с помощью HTML-тегов и атрибутов, что приводило к дублированию кода и сложности поддержки крупных сайтов.</p>
+      <h3>2.2 Способы подключения CSS</h3>
+      <p><strong>✅ Внешний (рекомендуемый)</strong>. CSS-правила записываются в отдельном файле с расширением .css. Подключение осуществляется через тег <code>&lt;link&gt;</code> в секции <code>&lt;head&gt;</code> HTML-документа: <code>&lt;link rel="stylesheet" href="styles.css"&gt;</code>. Преимущества: один CSS-файл обслуживает множество HTML-страниц, упрощается изменение дизайна всего сайта, браузер кеширует файл, ускоряя загрузку последующих страниц.</p>
+      <p><strong>⚙️ Внутренний способ</strong>. CSS-правила записываются внутри тега <code>&lt;style&gt;</code>, который размещается в секции <code>&lt;head&gt;</code> HTML-документа. Не рекомендован для реальных проектов.</p>
+      <p><strong>🔧 Инлайновый способ</strong>. CSS-правила записываются непосредственно в атрибут <code>style</code> HTML-элемента: <code>&lt;p style="color: red;"&gt;Текст&lt;/p&gt;</code>. Используется только для динамических стилей (например, при изменении через JavaScript) или в исключительных случаях.</p>
+      <h3>2.3 Синтаксис и селекторы</h3>
+      <p>CSS-правило состоит из селектора и блока объявлений. Селектор указывает, к каким элементам применяется правило. Блок объявлений содержит одно или несколько свойств с их значениями, заключённых в фигурные скобки.</p>
+      <p><strong>Универсальный селектор</strong> <code>*</code> применяет правило ко всем элементам документа.</p>
+      <p><strong>Селектор по тегу</strong> применяет правило ко всем элементам с указанным тегом.</p>
+      <p><strong>Селектор по классу</strong> применяется ко всем элементам с указанным значением атрибута <code>class</code>. В CSS перед именем класса ставится точка.</p>
+      <p><strong>Селектор по ID</strong> применяется к элементу с указанным значением атрибута <code>id</code>. В CSS перед идентификатором ставится решётка <code>#</code>. Идентификатор должен быть уникальным на странице.</p>
+      <p><strong>Псевдоклассы</strong> определяют состояние элемента. Примеры: <code>:hover</code> — при наведении курсора, <code>:active</code> — в момент клика, <code>:focus</code> — при фокусе клавиатуры, <code>:first-child</code> — первый дочерний элемент.</p>
+      <h3>2.4 Блочная модель</h3>
+      <p>Каждый элемент HTML представляет собой прямоугольник. Блочная модель описывает составляющие этого прямоугольника:</p>
+      <ul>
+        <li><strong>Content (содержимое)</strong> — область, где находится текст, изображения или другие элементы</li>
+        <li><strong>Padding (внутренний отступ)</strong> — пространство между содержимым и границей элемента</li>
+        <li><strong>Border (граница)</strong> — рамка вокруг padding</li>
+        <li><strong>Margin (внешний отступ)</strong> — пространство между границей элемента и соседними элементами</li>
+      </ul>
+      <div class="figure">
+        <img src="images/19.jpg" alt="Блочная модель CSS" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Box+Model'">
+        <div class="figure-number">Рисунок 19</div>
+        <div class="figure-caption">Блочная модель CSS</div>
+      </div>
+      <p><strong>Свойство <code>box-sizing: border-box</code></strong> определяет, как браузер вычисляет ширину и высоту элемента. С этим значением ширина элемента = width (padding и border включены в width). Рекомендуется устанавливать <code>box-sizing: border-box</code> для всех элементов.</p>
+      <h3>2.5 Позиционирование и типы отображения</h3>
+      <p><strong>display</strong> — как элемент ведёт себя на странице:</p>
+      <ul>
+        <li><code>block</code> — ширина всей строки, переносы до и после. Работают ширина, высота, отступы. (<code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>)</li>
+        <li><code>inline</code> — внутри строки, ширина по тексту. Не работают ширина/высота и вертикальные отступы. (<code>&lt;span&gt;</code>, <code>&lt;a&gt;</code>)</li>
+        <li><code>inline-block</code> — как inline, но работают ширина, высота и все отступы.</li>
+        <li><code>none</code> — полностью убирает элемент (место исчезает).</li>
+      </ul>
+      <p><strong>position</strong> — как и где расположен элемент:</p>
+      <ul>
+        <li><code>static</code> (по умолчанию) — обычный поток. top/left не работают.</li>
+        <li><code>relative</code> — сдвиг относительно своего обычного места. Исходное место не исчезает.</li>
+        <li><code>absolute</code> — вырывается из потока. Позиционируется относительно ближайшего не static родителя.</li>
+        <li><code>fixed</code> — привязан к окну браузера, не двигается при прокрутке.</li>
+        <li><code>sticky</code> — сначала обычный, после прокрутки до границы — приклеивает.</li>
+      </ul>
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>Вы изучили язык CSS, который отвечает за визуальное оформление веб-страниц и позволяет отделить структуру документа от его представления. Вы освоили различные типы селекторов (тег, класс, идентификатор, псевдоклассы), разобрались с блочной моделью (content, padding, border, margin) и научились управлять позиционированием элементов с помощью свойств display и position. Эти навыки дают вам возможность создавать эстетичные, адаптивные и хорошо структурированные веб-страницы с гибким управлением расположением и отступами элементов.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice2" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture2">← Вернуться к лекции 2</button>
+        <button class="nav-btn" data-page="lecture3">Следующая лекция →</button>
+      </div>
+      <h1>🎨 ПРАКТИКА 2: Основы CSS</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться подключать CSS к HTML-документу тремя способами</li>
+          <li>Освоить различные типы селекторов (тег, класс, id, атрибут, псевдоклассы)</li>
+          <li>Понять блочную модель и научиться управлять отступами и границами</li>
+          <li>Научиться позиционировать элементы с помощью свойств display и position</li>
+          <li>Освоить создание адаптивных блоков с использованием box-sizing</li>
+        </ol>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Создайте HTML-документ с базовой структурой и подключите к нему внешний CSS-файл (создайте файл styles.css). В секции <code>&lt;head&gt;</code> добавьте также внутренний стиль для тега <code>&lt;body&gt;</code> (установите семейство шрифтов Arial).</li>
+        <li>Используя селектор по тегу, задайте для всех заголовков <code>&lt;h1&gt;</code> синий цвет текста и размер 28px. Для всех абзацев <code>&lt;p&gt;</code> установите размер шрифта 16px и межстрочный интервал 1.5.</li>
+        <li>Создайте три разных элемента с классом highlight. Через селектор класса задайте для них жёлтый фоновый цвет, внутренний отступ 10px и сплошную оранжевую границу толщиной 2px.</li>
+        <li>Создайте элемент с идентификатором main-title. Через селектор id задайте для него зелёный цвет текста, выравнивание по центру и нижнюю границу пунктиром зелёного цвета толщиной 3px.</li>
+        <li>Используя селектор по атрибуту, найдите все элементы <code>&lt;input&gt;</code> с атрибутом type="text" и задайте им ширину 250px, внутренний отступ 8px и серую рамку толщиной 1px. Для всех элементов с атрибутом disabled установите серый фон и непрозрачность 0.6.</li>
+        <li>Создайте таблицу с 3 строками и 3 столбцами. Используя псевдокласс :hover, сделайте так, чтобы при наведении на строку таблицы её фон менялся на светло-серый. Для первой строки с помощью :first-child задайте жирный шрифт.</li>
+        <li>Используя псевдокласс :nth-child(odd), задайте для нечётных строк таблицы серый фон. Для чётных строк через :nth-child(even) задайте белый фон.</li>
+        <li>Создайте три блока <code>&lt;div&gt;</code> с классом box. Через универсальный селектор <code>*</code> установите для всех элементов box-sizing: border-box. Для класса box задайте ширину 200px, высоту 150px, сплошную чёрную границу толщиной 2px, внешний отступ снизу 20px и внутренний отступ 15px. Проверьте, что ширина блока остаётся 200px.</li>
+        <li>Создайте блок с классом card. Задайте ему ширину 300px, внешний отступ 20px (со всех сторон), внутренний отступ: сверху 20px, справа 15px, снизу 20px, слева 15px. Добавьте тень с помощью box-shadow: 5px 5px 10px rgba(0,0,0,0.3). Внутри блока разместите заголовок и несколько абзацев текста.</li>
+        <li>Создайте три блока разного цвета (красный, зелёный, синий) с классом color-block. Используя сокращённую запись margin, задайте первому блоку отступы 10px, второму — 20px 40px, третьему — 5px 10px 15px 20px. Наблюдайте разницу в расположении блоков.</li>
+        <li>Создайте кнопку с классом button. Используя сокращённую запись padding, задайте ей внутренние отступы 12px 24px. Установите фоновый цвет #007bff, белый цвет текста, рамку без границ, скругление углов 6px. Добавьте псевдокласс :hover для изменения цвета фона на #0056b3.</li>
+        <li>Создайте три элемента <code>&lt;span&gt;</code> с текстом "Inline элемент". Для них задайте стили: фоновый цвет #f0f0f0, внутренний отступ 5px, внешний отступ 10px (слева и справа). Проверьте, что вертикальные отступы и ширина/высота не работают. Прокомментируйте наблюдаемое поведение.</li>
+        <li>Создайте три элемента <code>&lt;div&gt;</code> с классом inline-block-demo. Задайте им свойство display: inline-block, ширину 150px, высоту 100px, фоновый цвет #e0e0e0, внешний отступ 10px и внутренний отступ 8px. Убедитесь, что блоки располагаются в строку, но работают все размеры и отступы.</li>
+        <li>Создайте элемент с классом relative-box. Задайте ему позиционирование position: relative, смещение top: 20px и left: 30px, фоновый цвет #ffcc00, ширину 300px, внутренний отступ 15px. Рядом создайте обычный блок с текстом. Убедитесь, что исходное место относительного блока сохраняется, а соседний блок не смещается.</li>
+        <li>Создайте родительский контейнер с классом parent (ширина 400px, высота 250px, фоновый цвет #f5f5f5, относительное позиционирование). Внутри создайте дочерний блок с классом absolute-child (ширина 120px, высота 80px, фоновый цвет #ff6666, абсолютное позиционирование). Задайте ему смещение bottom: 20px и right: 15px. Убедитесь, что блок позиционируется относительно родителя.</li>
+        <li>Создайте блок с классом fixed-button. Задайте ему позиционирование position: fixed, расположение bottom: 30px, right: 30px, фоновый цвет #28a745, цвет текста белый, внутренний отступ 10px 20px, скругление 50px. Прокрутите страницу и убедитесь, что блок остаётся на месте.</li>
+        <li>Создайте блок с классом sticky-header. Задайте ему позиционирование position: sticky, прилипание к верху top: 0, фоновый цвет #343a40, цвет текста белый, внутренний отступ 15px. Добавьте перед и после блока много текста (10-15 строк). Прокрутите страницу и наблюдайте, как блок прилипает к верху при прокрутке.</li>
+        <li>Создайте центрированный блок-карточку. Задайте ему ширину 80% от родителя, максимальную ширину 600px, внешний отступ margin: 0 auto, внутренний отступ 25px, фоновый цвет #ffffff, тень, скругление углов 12px. Внутри разместите заголовок, текст и кнопку.</li>
+        <li>Создайте два блока с классами block-1 и block-2. Для первого задайте display: block, для второго — display: none. Убедитесь, что второй блок полностью скрыт и не занимает места. Поменяйте none на visibility: hidden и сравните разницу (скрыт, но место остаётся).</li>
+        <li>Создайте интерактивное меню из трёх пунктов (Главная, О нас, Контакты), расположенных горизонтально с помощью display: inline-block. Для каждого пункта задайте фоновый цвет #6c757d, цвет текста белый, внутренний отступ 10px 20px, внешний отступ 5px. Добавьте псевдокласс :hover для изменения фона на #5a6268 и добавьте плавный переход через transition: background-color 0.3s ease.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Создайте многоуровневый блок, демонстрирующий полную блочную модель. Создайте блок с классом box-model-demo. Задайте ему: ширину 300px, фоновый цвет #d4edda, внутренний отступ 20px (зелёная область), границу 5px пунктиром #28a745 (жёлтая область), внешний отступ 30px (оранжевая область — видна по расстоянию до соседних элементов). Внутри блока разместите текст "Content". Добавьте пояснения с помощью всплывающих подсказок (атрибут title), что является какой областью.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ЛЕКЦИЯ 3: JAVASCRIPT ========== -->
+  <div id="lecture3" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture2">← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice3">🛠️ Практика 3</button>
+        <button class="nav-btn" data-page="lecture3.5">Следующая лекция →</button>
+      </div>
+      <h1>⚡ ЛЕКЦИЯ 3. ОСНОВЫ JAVASCRIPT: СИНТАКСИС, ДАННЫЕ И ФУНКЦИИ</h1>
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Определение JavaScript, история создания и область применения</li>
+          <li>Способы подключения JS к HTML-документу</li>
+          <li>Переменные и типы данных</li>
+          <li>Операторы (математические, сравнения, логические)</li>
+          <li>Условные операторы (if, else, switch)</li>
+          <li>Циклы (for, while)</li>
+          <li>Функции</li>
+        </ol>
+      </div>
+      <h3>3.1 Определение JavaScript</h3>
+      <p><strong>JavaScript (JS)</strong> — язык программирования, который делает веб-страницы интерактивными. HTML отвечает за структуру, CSS — за внешний вид, а JavaScript — за поведение.</p>
+      <p><em>Создатель:</em> Брендан Эйх (компания Netscape). Год создания: 1995.</p>
+      <div class="figure">
+        <img src="images/21.jpg" alt="Брендан Эйх — создатель JavaScript" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Брендан+Эйх'">
+        <div class="figure-number">Рисунок 21</div>
+        <div class="figure-caption">Создатель JavaScript — Брендан Эйх</div>
+      </div>
+      <p><strong>Область применения:</strong> реакция на действия пользователя (клики, движение мыши, отправка форм), изменение содержимого страницы без перезагрузки, валидация данных, отправка запросов на сервер (AJAX, Fetch API), работа с хранилищем браузера (localStorage, cookies), создание игр, анимаций, веб-приложений (React, Vue, Angular).</p>
+      <h3>3.2 Способы подключения JavaScript</h3>
+      <p>Существует 3 способа подключить JS к HTML, однако наилучшим из них является создание отдельного JS файла и подключение его через атрибут src тега <code>&lt;script&gt;</code>, а именно так: <code>&lt;script src="script.js"&gt;&lt;/script&gt;</code>. Важно заметить, что тег <code>&lt;script&gt;</code> можно размещать в <code>&lt;head&gt;</code> или перед <code>&lt;/body&gt;</code>.</p>
+      <h3>3.3 Переменные и типы данных</h3>
+      <p>Переменная — контейнер для хранения данных.</p>
+      <table>
+        <caption>Таблица 1: Типы переменных в JS</caption>
+        <tr><th>Ключевое слово</th><th>Особенность</th></tr>
+        <tr><td><code>let</code></td><td>Можно перезаписывать (современный стандарт)</td></tr>
+        <tr><td><code>const</code></td><td>Нельзя изменить после присвоения (константа)</td></tr>
+        <tr><td><code>var</code></td><td>Устаревший способ (не использовать)</td></tr>
+      </table>
+      <p class="note">⚠️ <strong>Null и Undefined — не одно и то же.</strong> Undefined означает, что переменная объявлена, но ей не присвоено значение, а null — это намеренное присвоение отсутствия значения (пустой объект).</p>
+      <p>JS обладает динамической типизацией. Это означает, что переменные не привязаны к конкретному типу данных и могут менять его в процессе выполнения программы. Тип определяется автоматически во время присваивания значения. Поэтому вам может потребоваться функция определения типа: <code>typeof 42; // "number"</code></p>
+      <h3>3.4 Операторы</h3>
+      <p><strong>Математические операторы:</strong> JS предоставляет стандартным встроенным набором мат. операций, таких, как: <code>+ - * / % **</code> (возведение в степень).</p>
+      <p><strong>Операторы сравнения</strong> (результат — true/false):</p>
+      <table>
+        <caption>Таблица 2: Операторы сравнения JS</caption>
+        <tr><th>Оператор</th><th>Значение</th><th>Пример</th></tr>
+        <tr><td><code>==</code></td><td>Равно (без учёта типа)</td><td><code>5 == "5" → true</code></td></tr>
+        <tr><td><code>===</code></td><td>Строго равно (с учётом типа)</td><td><code>5 === "5" → false</code></td></tr>
+        <tr><td><code>!=</code></td><td>Не равно</td><td><code>5 != 3 → true</code></td></tr>
+        <tr><td><code>!==</code></td><td>Строго не равно</td><td><code>5 !== "5" → true</code></td></tr>
+      </table>
+      <p><strong>Логические операторы:</strong> <code>&&</code> - и, <code>||</code> - или, <code>!</code> - не</p>
+      <h3>3.5 Условные операторы</h3>
+      <p><strong>if / else if / else:</strong></p>
+      <div class="code-block">let age = 18;
+if (age &lt; 18) {
+    console.log("Доступ закрыт");
+} else if (age === 18) {
+    console.log("Только совершеннолетним");
+} else {
+    console.log("Добро пожаловать");
+}</div>
+      <p><strong>switch (для множества точных значений):</strong></p>
+      <div class="code-block">let day = 3;
+switch (day) {
+    case 1:
+        console.log("Понедельник");
+        break;
+    case 2:
+        console.log("Вторник");
+        break;
+    default:
+        console.log("Другой день");
+}</div>
+      <h3>3.6 Циклы</h3>
+      <p><strong>1. for</strong> - классический цикл со счётчиком. Используется, когда известно точное количество итераций.</p>
+      <div class="code-block">for (let i = 0; i &lt; 5; i++) {
+    console.log(i);  // 0, 1, 2, 3, 4
+}</div>
+      <p><strong>2. while</strong> - цикл с предусловием. Выполняется, пока условие истинно. Может не выполниться ни разу.</p>
+      <div class="code-block">let i = 0;
+while (i &lt; 5) {
+    console.log(i);  // 0, 1, 2, 3, 4
+    i++;
+}</div>
+      <p><strong>3. do...while</strong> - цикл с постусловием. Выполняется хотя бы один раз, затем проверяет условие.</p>
+      <p><strong>4. for...of</strong> - перебор значений итерируемых объектов. Используется для массивов, строк, коллекций.</p>
+      <p><strong>5. for...in</strong> - перебор свойств объекта. Используется для объектов.</p>
+      <p><strong>Управление циклами:</strong> <code>break</code> - полный выход из цикла, <code>continue</code> - пропуск текущей итерации.</p>
+      <h3>3.7 Функции</h3>
+      <p>Функция - блок кода, который можно вызвать по имени.</p>
+      <div class="code-block">// Объявление и вызов функции:
+function sayHello(name) {
+    console.log("Привет, " + name);
+}
+sayHello("Анна");  // Привет, Анна
+
+// Функция с возвратом значения:
+function sum(a, b) {
+    return a + b;
+}
+let result = sum(3, 5);  // result = 8
+
+// Стрелочные функции (современный стандарт):
+const multiply = (x, y) =&gt; x * y;
+console.log(multiply(4, 3));  // 12</div>
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>Вы познакомились с основами JavaScript — языка, который оживляет веб-страницы и делает их интерактивными. Вы научились объявлять переменные с помощью let и const, изучили основные типы данных, операторы (математические, сравнения, логические), а также освоили условные конструкции (if, switch) и различные типы циклов (for, while, for...of, for...in). Кроме того, вы получили навыки создания и вызова функций, включая современные стрелочные функции, что закладывает прочную базу для дальнейшего изучения программирования на JavaScript и работы с веб-приложениями.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice3" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture3">← Вернуться к лекции 3</button>
+        <button class="nav-btn" data-page="lecture3.5">Следующая лекция →</button>
+      </div>
+      <h1>⚡ ПРАКТИКА 3: Основы JavaScript</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться подключать JavaScript к HTML-документу</li>
+          <li>Освоить объявление переменных с использованием let, const, var</li>
+          <li>Изучить основные типы данных и их определение с помощью typeof</li>
+          <li>Овладеть математическими, логическими операторами и операторами сравнения</li>
+          <li>Научиться использовать условные операторы (if, else, switch)</li>
+          <li>Освоить различные типы циклов (for, while, do...while, for...of, for...in)</li>
+          <li>Научиться создавать и вызывать функции, включая стрелочные функции</li>
+        </ol>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Создайте HTML-документ с базовой структурой. Подключите внешний JavaScript-файл (создайте файл script.js) с помощью тега <code>&lt;script&gt;</code> перед закрывающим тегом <code>&lt;/body&gt;</code>. В этом же файле напишите код для всех последующих заданий.</li>
+        <li>Объявите три переменные: userName (строка с вашим именем), userAge (число с вашим возрастом), isDeveloper (булево значение true). Выведите все три переменные в консоль с помощью console.log(). С помощью typeof выведите тип каждой переменной.</li>
+        <li>Объявите переменную uninitializedVar без присвоения значения. Объявите переменную emptyValue и присвойте ей значение null. Выведите в консоль значения обеих переменных и их типы. Обратите внимание на разницу между undefined и null.</li>
+        <li>Объявите переменную dynamicVar со значением 42. Выведите её значение и тип. Затем присвойте ей строку "Теперь я строка". Снова выведите значение и тип. Прокомментируйте наблюдение (это демонстрация динамической типизации).</li>
+        <li>Создайте объект book с полями: title (название книги), author (автор), year (год издания), pages (количество страниц). Выведите в консоль фразу "Книга [название] автора [автор] была издана в [год] году и содержит [страницы] страниц", подставив данные из объекта.</li>
+        <li>Создайте массив fruits с пятью названиями фруктов. Выведите в консоль: первый элемент массива, третий элемент массива, последний элемент массива (используя свойство length), длину массива, весь массив в виде строки через дефис (используя метод join).</li>
+        <li>Объявите переменные x = 25 и y = 8. Выполните и выведите в консоль результаты следующих математических операций: сложение, вычитание, умножение, деление, остаток от деления x на y, возведение x в степень y, результат выражения (x + y) * 2 - x / y.</li>
+        <li>Сравните пары значений и выведите в консоль результат (true/false): 5 равно "5" (с помощью ==), 5 равно "5" (с помощью ===), 10 не равно "10" (с помощью !=), 10 не равно "10" (с помощью !==), 15 больше 10, 8 меньше или равно 7, строка "яблоко" больше строки "банан" (проверьте, что получится).</li>
+        <li>Объявите переменные a = true, b = false, c = true. Вычислите и выведите в консоль результаты: a && b, a && c, a || b, b || c, !a, !b, (a && b) || c, !(a && c).</li>
+        <li>Напишите код, который запрашивает у пользователя число через prompt(). Преобразуйте полученное значение в число. С помощью if/else if/else определите и выведите в консоль: если число больше 0 → "Число положительное", если число меньше 0 → "Число отрицательное", если число равно 0 → "Число равно нулю", если введено не число → "Это не число!"</li>
+        <li>Перепишите задание 10 с использованием тернарного оператора (без if/else). Результат выведите в консоль.</li>
+        <li>Используя оператор switch, напишите код, который запрашивает у пользователя номер месяца (от 1 до 12) и выводит время года: 12, 1, 2 → "Зима", 3, 4, 5 → "Весна", 6, 7, 8 → "Лето", 9, 10, 11 → "Осень", другое значение → "Некорректный номер месяца".</li>
+        <li>Используя цикл for, выведите в консоль все нечётные числа от 1 до 19. Также вычислите и выведите их сумму.</li>
+        <li>Используя цикл while, выведите в консоль числа от 20 до 10 в обратном порядке (т.е. 20, 19, 18, ..., 10).</li>
+        <li>Используя цикл do...while, запрашивайте у пользователя число через prompt() до тех пор, пока он не введёт число больше 100. После завершения цикла выведите в консоль "Готово! Вы ввели число больше 100".</li>
+        <li>Создайте массив colors = ["красный", "зелёный", "синий", "жёлтый", "фиолетовый"]. Используя цикл for...of, выведите в консоль каждый цвет в формате "Цвет: красный". Также с помощью этого же цикла создайте новую строку, где цвета перечислены через запятую с пробелом.</li>
+        <li>Создайте объект student с полями: name (Иван), age (20), faculty (Информатика), course (3), grade (4.8). Используя цикл for...in, выведите в консоль все свойства объекта в формате "свойство: значение". Также выведите количество свойств в объекте.</li>
+        <li>Напишите код, который создаёт массив чисел от 1 до 10. Используя цикл for и операторы continue и break: выведите числа, пропуская число 5 (используйте continue), остановите цикл после вывода числа 7 (используйте break).</li>
+        <li>Создайте обычную функцию calculateArea(width, height), которая принимает ширину и высоту прямоугольника и возвращает его площадь. Вызовите функцию с разными аргументами и выведите результаты в консоль.</li>
+        <li>Создайте функцию isEven(number), которая принимает число и возвращает true, если число чётное, и false, если нечётное. Используйте эту функцию в цикле от 1 до 10, чтобы вывести все чётные числа.</li>
+        <li>Создайте стрелочную функцию square(x), которая возвращает квадрат числа. Создайте стрелочную функцию greet(name), которая возвращает строку "Привет, {name}!". Вызовите обе функции и выведите результаты.</li>
+        <li>Создайте функцию createUser(firstName, lastName, age), которая: принимает имя, фамилию и возраст, создаёт и возвращает объект пользователя с полями fullName (объединённые имя и фамилия) и age, проверяет, что возраст передан как число, если нет — устанавливает значение 18 по умолчанию. Вызовите функцию дважды с разными аргументами и выведите полученные объекты в консоль.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Создайте функцию guessNumber(), которая: генерирует случайное число от 1 до 100 (используйте Math.random()), запрашивает у пользователя число через prompt(), используя цикл while, продолжает запрашивать число, пока пользователь не угадает, после каждой попытки подсказывает: "Загаданное число больше" или "Загаданное число меньше", при правильном ответе выводит количество попыток и завершает цикл.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ЛЕКЦИЯ 3.5: СРАВНЕНИЕ ========== -->
+  <div id="lecture3.5" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture3">← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice3.5">🛠️ Практика 3.5</button>
+        <button class="nav-btn" data-page="lecture4">Следующая лекция →</button>
+      </div>
+      <h1>⚖️ ЛЕКЦИЯ 4. СРАВНИТЕЛЬНЫЙ АНАЛИЗ: HTML, CSS, JS</h1>
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Три кита веб-разработки</li>
+          <li>Таблица сравнения</li>
+          <li>Как они взаимодействуют</li>
+          <li>Аналогия со строительством дома</li>
+          <li>Частые ошибки новичков</li>
+        </ol>
+      </div>
+      <h3>1. Три кита веб-разработки</h3>
+      <p>Любая современная веб-страница строится на трёх технологиях. Каждая решает свою уникальную задачу:</p>
+      <table>
+        <tr><th>Технология</th><th>Полное название</th><th>Роль</th><th>Аналогия</th></tr>
+        <tr><td><strong>HTML</strong></td><td>HyperText Markup Language</td><td>Структура и содержимое</td><td>🏗️ Каркас здания</td></tr>
+        <tr><td><strong>CSS</strong></td><td>Cascading Style Sheets</td><td>Внешний вид и расположение</td><td>🎨 Отделка и дизайн</td></tr>
+        <tr><td><strong>JavaScript</strong></td><td>JavaScript (ECMAScript)</td><td>Поведение и интерактивность</td><td>⚡ Электрика и автоматика</td></tr>
+      </table>
+      <h3>2. Подробное сравнение</h3>
+      <table>
+        <tr><th>Критерий</th><th>HTML</th><th>CSS</th><th>JavaScript</th></tr>
+        <tr><td><strong>Тип языка</strong></td><td>Язык разметки</td><td>Таблицы стилей</td><td>Язык программирования</td></tr>
+        <tr><td><strong>Создан</strong></td><td>1991 (Тим Бернерс-Ли)</td><td>1996 (Хокон Виум Ли)</td><td>1995 (Брендан Эйх)</td></tr>
+        <tr><td><strong>Файл</strong></td><td><code>.html</code></td><td><code>.css</code></td><td><code>.js</code></td></tr>
+        <tr><td><strong>Выполняется</strong></td><td>Браузером (парсинг)</td><td>Браузером (рендеринг)</td><td>JS-движком (V8, SpiderMonkey)</td></tr>
+        <tr><td><strong>Логика</strong></td><td>Нет</td><td>Нет (только медиазапросы)</td><td>Да (полноценная)</td></tr>
+        <tr><td><strong>Переменные</strong></td><td>Нет</td><td>Да (CSS Custom Properties)</td><td>Да (let, const)</td></tr>
+        <tr><td><strong>Условия/циклы</strong></td><td>Нет</td><td>Нет</td><td>Да (if, for, while...)</td></tr>
+        <tr><td><strong>Работа с DOM</strong></td><td>Является DOM</td><td>Меняет стили DOM</td><td>Создаёт/меняет/удаляет DOM</td></tr>
+        <tr><td><strong>Сторона выполнения</strong></td><td>Клиент (браузер)</td><td>Клиент (браузер)</td><td>Клиент и сервер (Node.js)</td></tr>
+      </table>
+      <h3>3. Как они взаимодействуют</h3>
+      <p>В реальном проекте все три технологии работают вместе:</p>
+      <h4>🔗 Порядок подключения:</h4>
+      <div class="code-block">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;!-- 1. HTML: Структура страницы --&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Мой сайт&lt;/title&gt;
+    
+    &lt;!-- 2. CSS: Подключение стилей --&gt;
+    &lt;link rel="stylesheet" href="styles.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1 id="title"&gt;Привет&lt;/h1&gt;
+    &lt;button id="btn"&gt;Нажми&lt;/button&gt;
+    
+    &lt;!-- 3. JavaScript: Подключение логики --&gt;
+    &lt;script src="app.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</div>
+      <h4>🎯 Пример взаимодействия:</h4>
+      <table>
+        <tr><th>Действие</th><th>Технология</th><th>Код</th></tr>
+        <tr><td>Создать кнопку</td><td>HTML</td><td><code>&lt;button&gt;Нажми&lt;/button&gt;</code></td></tr>
+        <tr><td>Сделать её синей и круглой</td><td>CSS</td><td><code>button { background: blue; border-radius: 50%; }</code></td></tr>
+        <tr><td>При клике вывести alert</td><td>JS</td><td><code>btn.onclick = () => alert('Привет!');</code></td></tr>
+      </table>
+      <h3>4. Аналогия со строительством дома</h3>
+      <div class="analogy-box">
+        <strong>🏠 HTML</strong> = фундамент, стены, перегородки (структура)<br>
+        <strong>🎨 CSS</strong> = краска, обои, мебель, освещение (оформление)<br>
+        <strong>⚡ JavaScript</strong> = электрика, водопровод, сигнализация (функциональность)
+      </div>
+      <p>Без HTML нет «здания». Без CSS — «неоштукатуренная коробка». Без JS — «дом без коммуникаций». Только вместе они создают полноценный «умный дом».</p>
+      <h3>5. Частые ошибки новичков</h3>
+      <table>
+        <tr><th>Ошибка</th><th>Почему плохо</th><th>Как правильно</th></tr>
+        <tr>
+          <td>Использовать <code>&lt;br&gt;</code> для отступов</td>
+          <td>Это семантически неверно</td>
+          <td>Используйте CSS <code>margin/padding</code></td>
+        </tr>
+        <tr>
+          <td>Инлайновые стили <code>style="..."</code></td>
+          <td>Сложно поддерживать, дублирование</td>
+          <td>Выносите в отдельный <code>.css</code> файл</td>
+        </tr>
+        <tr>
+          <td>Манипуляция DOM напрямую</td>
+          <td>Медленно, сложно синхронизировать</td>
+          <td>Используйте React или виртуальный DOM</td>
+        </tr>
+        <tr>
+          <td>Писать JS внутри HTML</td>
+          <td>Смешивание логики и разметки</td>
+          <td>Отдельный <code>.js</code> файл с <code>addEventListener</code></td>
+        </tr>
+      </table>
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>HTML, CSS и JavaScript — взаимодополняющие технологии. Понимание их ролей и границ ответственности — ключ к написанию чистого, поддерживаемого и масштабируемого кода.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice3.5" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture3.5">← Вернуться к лекции 3.5</button>
+        <button class="nav-btn" data-page="lecture4">Следующая лекция →</button>
+      </div>
+      <h1>⚖️ ПРАКТИКА 3.5: Сравнение технологий</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться определять, какая технология отвечает за какую часть веб-страницы</li>
+          <li>Освоить правильное разделение ответственности между HTML, CSS и JS</li>
+          <li>Научиться избегать частых ошибок при совместном использовании технологий</li>
+        </ol>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Создайте простую веб-страницу с заголовком, абзацем текста и кнопкой. Разделите код на три файла: index.html, styles.css, script.js.</li>
+        <li>В HTML создайте структуру: заголовок <code>&lt;h1&gt;</code>, абзац <code>&lt;p&gt;</code>, кнопку <code>&lt;button&gt;</code>.</li>
+        <li>В CSS стилизуйте: заголовок — синий цвет, абзац — размер шрифта 18px, кнопка — зелёный фон и скруглённые углы.</li>
+        <li>В JavaScript добавьте обработчик клика на кнопку, который меняет текст абзаца на "Кнопка нажата!".</li>
+        <li>Проверьте, что при отключении JavaScript страница всё ещё отображается (прогрессивное улучшение).</li>
+        <li>Проверьте, что при отключении CSS страница всё ещё читаема (доступность).</li>
+        <li>Создайте таблицу сравнения трёх технологий в виде HTML-таблицы с применением CSS-стилей.</li>
+        <li>Добавьте на страницу блок с цитатой о важности разделения ответственности (используйте <code>&lt;blockquote&gt;</code>).</li>
+        <li>Реализуйте переключатель темы (светлая/тёмная) с помощью JavaScript, меняя класс у <code>&lt;body&gt;</code>.</li>
+        <li>Добавьте валидацию: при нажатии кнопки без текста в абзаце выводите сообщение об ошибке.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Создайте мини-приложение "Карточка товара", где:
+          <ul>
+            <li>HTML отвечает за структуру карточки (изображение, название, цена, кнопка)</li>
+            <li>CSS отвечает за визуальное оформление (тень, отступы, цвета)</li>
+            <li>JS отвечает за интерактивность (добавление в корзину, изменение количества)</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ЛЕКЦИЯ 4: DOM ========== -->
+  <div id="lecture4" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture3.5">← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice4">🛠️ Практика 4</button>
+        <button class="nav-btn" data-page="lecture5">Следующая лекция →</button>
+      </div>
+      <h1>🌐 ЛЕКЦИЯ 5. JAVASCRIPT И БРАУЗЕР: DOM И СОБЫТИЯ</h1>
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Работа с DOM (динамическое изменение HTML и CSS)</li>
+          <li>Поиск элементов на странице</li>
+          <li>Изменение содержимого и стилей</li>
+          <li>Работа с классами</li>
+          <li>Обработка событий (клик, ввод текста и др.)</li>
+          <li>Часто используемые типы событий</li>
+        </ol>
+      </div>
+      <h3>4.1 Работа с DOM</h3>
+      <p><strong>DOM (Document Object Model)</strong> — представление HTML-документа в виде дерева объектов, которым можно управлять через JavaScript.</p>
+      <div class="figure">
+        <img src="images/23.jpg" alt="Пример DOM" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=DOM'">
+        <div class="figure-number">Рисунок 23</div>
+        <div class="figure-caption">Пример DOM</div>
+      </div>
+      <h3>4.2 Поиск элементов на странице</h3>
+      <table>
+        <tr><th>Метод</th><th>Что делает</th><th>Пример</th></tr>
+        <tr><td><code>getElementById</code></td><td>Ищет элемент по id</td><td><code>document.getElementById("header")</code></td></tr>
+        <tr><td><code>querySelector</code></td><td>Ищет первый элемент по CSS-селектору</td><td><code>document.querySelector(".btn")</code></td></tr>
+        <tr><td><code>querySelectorAll</code></td><td>Ищет все элементы</td><td><code>document.querySelectorAll("p")</code></td></tr>
+      </table>
+      <h3>4.3 Изменение содержимого и стилей</h3>
+      <p><strong>Изменение содержимого:</strong></p>
+      <div class="code-block">let title = document.getElementById("main-title");
+title.textContent = "Новый заголовок";       // меняет только текст
+title.innerHTML = "&lt;em&gt;Привет&lt;/em&gt;";         // меняет HTML</div>
+      <p><strong>Изменение стилей (CSS):</strong></p>
+      <div class="code-block">let box = document.querySelector(".box");
+box.style.backgroundColor = "blue";
+box.style.width = "200px";
+box.style.fontSize = "18px";</div>
+      <h3>4.4 Работа с классами</h3>
+      <table>
+        <tr><th>Метод</th><th>Действие</th><th>Пример</th></tr>
+        <tr><td><code>classList.add()</code></td><td>Добавляет класс</td><td><code>element.classList.add("active")</code></td></tr>
+        <tr><td><code>classList.remove()</code></td><td>Удаляет класс</td><td><code>element.classList.remove("hidden")</code></td></tr>
+        <tr><td><code>classList.toggle()</code></td><td>Переключает класс</td><td><code>element.classList.toggle("visible")</code></td></tr>
+        <tr><td><code>classList.contains()</code></td><td>Проверяет наличие класса</td><td><code>element.classList.contains("active")</code></td></tr>
+      </table>
+      <h3>4.5 Обработка событий</h3>
+      <p>Событие - действие пользователя: клик, наведение мыши, ввод текста, загрузка страницы.</p>
+      <p><strong>Способ 1. Через свойство элемента:</strong></p>
+      <div class="code-block">let button = document.getElementById("myBtn");
+button.onclick = function() {
+    alert("Кнопка нажата!");
+};</div>
+      <p><strong>Способ 2. Через addEventListener (современный стандарт):</strong></p>
+      <div class="code-block">button.addEventListener("click", () => {
+    console.log("Клик!");
+});</div>
+      <h3>4.6 Часто используемые типы событий</h3>
+      <table>
+        <tr><th>Событие</th><th>Когда срабатывает</th></tr>
+        <tr><td><code>click</code></td><td>Клик мышью</td></tr>
+        <tr><td><code>input</code></td><td>Изменение текста в поле ввода</td></tr>
+        <tr><td><code>submit</code></td><td>Отправка формы</td></tr>
+        <tr><td><code>DOMContentLoaded</code></td><td>HTML-документ полностью загружен</td></tr>
+      </table>
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>Вы освоили работу с DOM (Document Object Model) — ключевому механизму, позволяющему JavaScript взаимодействовать с содержимым веб-страницы. Вы научились находить элементы с помощью методов getElementById, querySelector и querySelectorAll, изменять их содержимое и стили, управлять классами через classList, а также обрабатывать различные события (клики, ввод текста, отправку форм) с использованием addEventListener. Эти навыки дают возможность создавать динамические и интерактивные веб-страницы, которые реагируют на действия пользователя в реальном времени.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice4" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture4">← Вернуться к лекции 4</button>
+        <button class="nav-btn" data-page="lecture5">Следующая лекция →</button>
+      </div>
+      <h1>🌐 ПРАКТИКА 4: Работа с DOM и событиями</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться находить элементы на странице с помощью различных методов</li>
+          <li>Освоить изменение содержимого и стилей элементов</li>
+          <li>Научиться управлять классами через classList</li>
+          <li>Освоить обработку различных событий</li>
+          <li>Создавать интерактивные элементы на странице</li>
+        </ol>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Создайте HTML-страницу с заголовком <code>&lt;h1 id="title"&gt;Заголовок&lt;/h1&gt;</code> и кнопкой «Изменить». При нажатии на кнопку измените текст заголовка на «Новый заголовок» с помощью getElementById и textContent.</li>
+        <li>Создайте три абзаца с классом text. Используя querySelectorAll, измените цвет текста всех абзацев на синий и установите размер шрифта 18px.</li>
+        <li>Создайте кнопку «Скрыть» и абзац текста. При нажатии на кнопку скрывайте абзац с помощью style.display = "none". Добавьте вторую кнопку «Показать», которая будет отображать абзац обратно.</li>
+        <li>Создайте квадратный блок <code>&lt;div&gt;</code> размером 100x100px с красным фоном. Добавьте кнопки «Увеличить» и «Уменьшить», которые будут изменять ширину и высоту блока на ±10px. Используйте style.width и style.height.</li>
+        <li>Создайте поле ввода и абзац. При вводе текста в поле (событие input) дублируйте введённый текст в абзац в реальном времени.</li>
+        <li>Создайте кнопку «Добавить класс» и блок <code>&lt;div class="box"&gt;Текст&lt;/div&gt;</code>. При нажатии на кнопку добавляйте блоку класс highlight (жёлтый фон и рамка). Создайте вторую кнопку «Удалить класс», которая удаляет этот класс. Используйте classList.add и classList.remove.</li>
+        <li>Создайте кнопку «Переключить» и блок текста. При каждом нажатии на кнопку переключайте класс hidden (свойство display: none). Используйте classList.toggle.</li>
+        <li>Создайте список из 5 элементов <code>&lt;ul&gt;</code> и кнопку «Проверить». При нажатии проверьте с помощью classList.contains, есть ли у третьего элемента списка класс active. Выведите результат в консоль (true/false).</li>
+        <li>Создайте форму с одним полем ввода и кнопкой «Отправить». При отправке формы предотвратите перезагрузку страницы (preventDefault) и выведите введённое значение в консоль.</li>
+        <li>Создайте несколько кнопок с разными цветами (красный, зелёный, синий). При нажатии на кнопку меняйте фон страницы (body) на соответствующий цвет. Используйте style.backgroundColor.</li>
+        <li>Создайте элемент <code>&lt;img&gt;</code> и две кнопки «Увеличить» и «Уменьшить». При нажатии на кнопки меняйте ширину изображения на ±20px (минимальная ширина 50px, максимальная 400px).</li>
+        <li>Создайте кнопку, которая при нажатии выводит в консоль текущую дату и время (используйте объект new Date()).</li>
+        <li>Создайте два абзаца с текстом. При нажатии на любой абзац его текст должен меняться на «Вы кликнули по этому абзацу!». Используйте один обработчик событий для обоих абзацев.</li>
+        <li>Создайте поле ввода для ввода возраста. При потере фокуса полем (событие blur) проверяйте, что введённое значение является числом от 0 до 120. Если нет — выводите сообщение об ошибке под полем ввода.</li>
+        <li>Создайте блок с текстом и кнопку «Скрыть через 2 секунды». При нажатии на кнопку текст должен исчезнуть через 2000 миллисекунд. Используйте setTimeout.</li>
+        <li>Создайте на странице счётчик (число) и три кнопки: «+1», «-1», «Сброс». При нажатии на кнопки счётчик должен изменяться и отображаться на странице.</li>
+        <li>Создайте выпадающий список (<code>&lt;select&gt;</code>) с тремя вариантами цветов (красный, зелёный, синий). При изменении выбранного значения меняйте цвет фона страницы на выбранный цвет.</li>
+        <li>Создайте блок-карточку. При наведении курсора на карточку (событие mouseenter) меняйте её фоновый цвет на светло-серый. При убирании курсора (mouseleave) возвращайте исходный цвет.</li>
+        <li>Создайте динамический список задач. Добавьте поле ввода и кнопку «Добавить». При нажатии на кнопку добавляйте новую задачу в список <code>&lt;ul&gt;</code>. Каждая новая задача должна иметь кнопку «Удалить», при нажатии на которую задача удаляется из списка.</li>
+        <li>Создайте аккордеон: три заголовка <code>&lt;h3&gt;</code> и три соответствующих блока с текстом (изначально скрытых). При клике на заголовок соответствующий блок текста должен показываться, а другие блоки — скрываться.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Создайте игру «Угадай число». Программа генерирует случайное число от 1 до 100. Пользователь вводит число в поле и нажимает «Проверить». Выводите подсказки: «Загаданное число больше», «Загаданное число меньше» или «Поздравляю, вы угадали!». Считайте количество попыток.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ЛЕКЦИЯ 5: REACT ========== -->
+  <div id="lecture5" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture4">← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice5">🛠️ Практика 5</button>
+        <button class="nav-btn" data-page="lecture6">Следующая лекция →</button>
+      </div>
+      <h1>⚛️ ЛЕКЦИЯ 6. ВВЕДЕНИЕ В REACT</h1>
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Суть React. Причины появления, основные концепции, преимущества</li>
+          <li>Компонентный подход, виртуальная DOM</li>
+          <li>JSX. Преимущества, взаимодействие с браузером, экосистема</li>
+        </ol>
+      </div>
+      <h3>5.1 Суть React. Причины появления</h3>
+      <p>В начале 2010-х годов веб-разработка переживала переломный момент. Приложения становились сложнее: появились Gmail, Facebook, Twitter — интерфейсы, требовавшие постоянного обновления данных без перезагрузки страницы.</p>
+      <p>Главная проблема того времени - работа с DOM (Document Object Model). Разработчики писали императивный код на чистом JavaScript или jQuery, который напрямую манипулировал элементами страницы. Это работало, но имело серьезные недостатки:</p>
+      <ul>
+        <li><strong>Сложность синхронизации.</strong> Если данные менялись в нескольких местах, нужно было найти все элементы на странице, которые отображают эти данные, и обновить их вручную. Для сложных интерфейсов это превращалось в лабиринт взаимосвязей.</li>
+        <li><strong>Непредсказуемость.</strong> Изменение одного элемента могло случайно сломать другой, так как код был тесно связан.</li>
+        <li><strong>Низкая производительность.</strong> Частые прямые манипуляции DOM (которая сама по себе является тяжелой структурой) приводили к тормозам.</li>
+      </ul>
+      <div class="figure">
+        <img src="images/24.jpg" alt="Создатель React Джордан Уолке" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Джордан+Уолке'">
+        <div class="figure-number">Рисунок 24</div>
+        <div class="figure-caption">Создатель React — Джордан Уолке</div>
+      </div>
+      <p>Для решения этих проблем инженером-программистом Facebook Джорданом Уолке был создан React - библиотека, которая занимается только рендерингом интерфейса и реакцией на действия пользователя.</p>
+      <h3>5.2 Основные принципы React</h3>
+      <ul>
+        <li><strong>Декларативность.</strong> Программист указывает React, что хочет видеть на экране, а React сам вычисляет, как обновить DOM, чтобы достичь этого состояния.</li>
+        <li><strong>Компонентность.</strong> Интерфейс разбивается на изолированные, переиспользуемые блоки - компоненты.</li>
+        <li><strong>Многозадачность.</strong> React можно использовать не только для веба (ReactDOM), но и для мобильной разработки (React Native), и даже для VR (React 360).</li>
+      </ul>
+      <h3>5.3 Виртуальная DOM и компонентный подход</h3>
+      <div class="figure">
+        <img src="images/25.jpg" alt="Схема работы виртуальной DOM" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=Virtual+DOM'">
+        <div class="figure-number">Рисунок 25</div>
+        <div class="figure-caption">Схема работы виртуальной DOM</div>
+      </div>
+      <p>Это главная технологическая инновация, обеспечивающая работу React. <strong>Виртуальная DOM</strong> - легковесная JavaScript-копия реальной DOM. Она представляет собой просто дерево JavaScript-объектов, описывающих структуру интерфейса.</p>
+      <p><strong>Как это работает (пошагово):</strong></p>
+      <ol>
+        <li>Когда состояние приложения меняется, React сначала обновляет не реальную DOM, а виртуальную. Это происходит очень быстро.</li>
+        <li>Затем React запускает процесс сравнения (Reconciliation). Он берёт старую версию виртуальной DOM и новую, и вычисляет, что именно изменилось.</li>
+        <li>После того как различия найдены, React формирует список минимально необходимых изменений и применяет их к реальной DOM одним пакетом (batch update).</li>
+      </ol>
+      <p>В React весь интерфейс - это дерево компонентов. <strong>Компонент</strong> - это независимый, изолированный строительный блок, который отвечает за отображение какой-то части экрана.</p>
+      <h3>5.4 JSX. Преимущества</h3>
+      <div class="figure">
+        <img src="images/26.jpg" alt="Что представляет собой любой jsx файл" onerror="this.src='https://via.placeholder.com/600x400/1a1f2a/a0a8b8?text=JSX'">
+        <div class="figure-number">Рисунок 26</div>
+        <div class="figure-caption">Что представляет собой любой jsx файл</div>
+      </div>
+      <p>Когда вы пишете код на React, вы постоянно сталкиваетесь с конструкцией, похожей на HTML, но находящейся внутри JavaScript. Это <strong>JSX (JavaScript XML)</strong>.</p>
+      <p><strong>Преимущества JSX:</strong></p>
+      <ul>
+        <li><strong>Знакомый синтаксис.</strong> Для верстальщиков и разработчиков переход с HTML на JSX практически незаметен.</li>
+        <li><strong>Наглядность.</strong> Код, написанный на JSX, гораздо легче читать и понимать структуру интерфейса.</li>
+        <li><strong>Безопасность.</strong> JSX включает встроенную защиту от XSS-атак. Все данные, вставленные в фигурных скобках, экранируются перед рендерингом.</li>
+      </ul>
+      <p>Код на JSX не понимает браузер напрямую. На этапе сборки проекта специальные инструменты (транспиляторы, например, Babel или встроенные возможности Vite) преобразуют JSX в обычные вызовы React.createElement.</p>
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>Вы познакомились с React — современной библиотекой для создания пользовательских интерфейсов, которая решает проблемы производительности и сложности синхронизации при работе с DOM. Вы изучили ключевые концепции React: компонентный подход, виртуальную DOM, декларативный стиль программирования и синтаксис JSX. Эти знания закладывают основу для разработки масштабируемых, производительных и поддерживаемых веб-приложений.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice5" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture5">← Вернуться к лекции 5</button>
+        <button class="nav-btn" data-page="lecture6">Следующая лекция →</button>
+      </div>
+      <h1>⚛️ ПРАКТИКА 5: Введение в React</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться создавать React-приложение</li>
+          <li>Освоить создание функциональных компонентов</li>
+          <li>Понять принцип композиции компонентов</li>
+          <li>Научиться передавать данные через props</li>
+          <li>Освоить синтаксис JSX</li>
+        </ol>
+      </div>
+      <div class="note">
+        <strong>💡 Подготовка окружения:</strong><br>
+        Создайте новый React-проект для выполнения заданий:<br>
+        <code>npm create vite@latest practice-5 -- --template react</code><br>
+        <code>cd practice-5</code><br>
+        <code>npm run dev</code>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>В файле App.js создайте функциональный компонент, который возвращает заголовок <code>&lt;h1&gt;</code> с текстом «Моё первое React-приложение». Отобразите приложение на странице.</li>
+        <li>Создайте компонент Greeting, который принимает проп name и возвращает абзац с текстом «Привет, {name}!». Используйте этот компонент в App.js трижды с разными именами.</li>
+        <li>Создайте компонент UserCard, который принимает пропсы: name (имя), age (возраст), city (город). Компонент должен отображать карточку пользователя. Вызовите компонент для трёх разных пользователей.</li>
+        <li>Создайте компонент Button, который принимает пропсы: text (текст кнопки) и color (цвет фона). Кнопка должна иметь стиль: padding 10px 20px, border-radius 5px, цвет текста белый.</li>
+        <li>Создайте компонент ProductCard для интернет-магазина. Он должен принимать: title (название товара), price (цена), image (URL картинки). Отобразите три карточки товаров на главной странице.</li>
+        <li>Создайте компонент TodoList, который внутри себя содержит массив задач. Отобразите задачи в виде маркированного списка. Используйте метод map() для рендеринга списка.</li>
+        <li>Добавьте в компонент TodoList условный рендеринг: если массив задач пуст, отображайте сообщение «Нет задач», если не пуст — отображайте список.</li>
+        <li>Создайте компонент Alert, который принимает проп type (значения: success, error, warning) и message (текст сообщения). В зависимости от type компонент должен иметь разный цвет фона.</li>
+        <li>Создайте компонент Profile, который отображает информацию о пользователе (имя, аватар, био). Аватар — это изображение, переданное через проп avatarUrl.</li>
+        <li>Создайте компонент Card с пропом children. Внутри Card должна быть рамка, тень, скругление углов и внутренние отступы.</li>
+        <li>Создайте компонент Header (шапка сайта с логотипом и навигацией), компонент Footer и компонент Layout, который объединяет Header, children и Footer.</li>
+        <li>Создайте компонент StarRating, который принимает проп rating (число от 1 до 5). Компонент должен отображать звёздочки: ★ (заполненная) и ☆ (пустая).</li>
+        <li>Создайте компонент ProgressBar, который принимает проп percentage (число от 0 до 100). Компонент должен отображать полосу прогресса.</li>
+        <li>Создайте компонент NewsList, который получает через проп articles массив новостей. Отобразите все новости в виде карточек.</li>
+        <li>Создайте компонент MenuItem и компонент Navigation, который принимает массив пунктов меню и отображает их горизонтально.</li>
+        <li>Создайте компонент SocialIcon, который принимает проп platform и отображает соответствующую иконку.</li>
+        <li>Создайте компонент Badge, который принимает проп count (число уведомлений). Если count > 0, отображается красный кружок с числом.</li>
+        <li>Создайте компонент Tabs, который принимает массив вкладок. По умолчанию активна первая вкладка.</li>
+        <li>Создайте компонент Modal, который принимает проп isOpen и onClose. Внутри модального окна отображайте children.</li>
+        <li>Создайте компонент ThemeButton, который отображает кнопку с текстом «Тёмная тема» или «Светлая тема» в зависимости от текущего режима.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Создайте полноценную страницу-портфолио, используя минимум 8 различных компонентов.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ЛЕКЦИЯ 6: REACT ХУКИ ========== -->
+  <div id="lecture6" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture5">← Предыдущая</button>
+        <button class="nav-btn practice" data-page="practice6">🛠️ Практика 6</button>
+        <button class="nav-btn" disabled>Последняя лекция ✓</button>
+      </div>
+      <h1>🔄 ЛЕКЦИЯ 7. РАЗРАБОТКА НА REACT: СОСТОЯНИЕ, ЭФФЕКТЫ, МАРШРУТИЗАЦИЯ</h1>
+      <div class="toc">
+        <strong>📋 Содержание:</strong>
+        <ol>
+          <li>Состояние компонента и хуки</li>
+          <li>Хук useState - управление данными</li>
+          <li>Хук useEffect - работа с побочными эффектами</li>
+          <li>Маршрутизация в React (React Router)</li>
+          <li>Управление формами и вводом пользователя</li>
+          <li>Подъём состояния и обмен данными между компонентами</li>
+        </ol>
+      </div>
+      <h3>6.1 Состояние компонента и хуки</h3>
+      <p>В предыдущей лекции мы рассмотрели функциональные компоненты, которые просто принимают входные данные (props) и возвращают разметку. Такие компоненты называются статическими. Однако реальные приложения требуют динамики.</p>
+      <p><strong>Состояние (state)</strong> - это данные, которые: хранятся внутри компонента, могут меняться во время работы приложения, при изменении автоматически вызывают перерисовку компонента.</p>
+      <p><strong>Хуки (hooks)</strong> - это специальные функции, которые позволяют «подключиться» к возможностям React из функциональных компонентов.</p>
+      <h3>6.2 Хук useState - управление данными</h3>
+      <p>useState - самый распространённый хук. Он позволяет добавить состояние в функциональный компонент.</p>
+      <p><strong>Синтаксис:</strong> <code>const [значение, функцияДляОбновления] = useState(начальноеЗначение);</code></p>
+      <div class="code-block">import React, { useState } from 'react';
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Вы кликнули {count} раз&lt;/p&gt;
+      &lt;button onClick={() => setCount(count + 1)}&gt;Нажми меня&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</div>
+      <h3>6.3 Хук useEffect - работа с побочными эффектами</h3>
+      <p>Побочные эффекты - это всё, что не относится непосредственно к рендерингу: запросы к серверу (API), работа с localStorage, установка таймеров.</p>
+      <p><strong>Синтаксис:</strong></p>
+      <div class="code-block">useEffect(() => {
+  // код эффекта
+  return () => { /* очистка */ };
+}, [зависимости]);</div>
+      <h3>6.4 Маршрутизация в React (React Router)</h3>
+      <p>React Router DOM - стандарт для маршрутизации в React.</p>
+      <table>
+        <caption>Таблица 5: Основные компоненты React Router</caption>
+        <tr><th>Компонент</th><th>Назначение</th></tr>
+        <tr><td><code>BrowserRouter</code></td><td>Оборачивает всё приложение</td></tr>
+        <tr><td><code>Routes</code></td><td>Контейнер для маршрутов</td></tr>
+        <tr><td><code>Route</code></td><td>Определяет путь и компонент</td></tr>
+        <tr><td><code>Link</code></td><td>Аналог &lt;a&gt; без перезагрузки</td></tr>
+        <tr><td><code>useParams</code></td><td>Получение параметров из URL</td></tr>
+        <tr><td><code>useNavigate</code></td><td>Программный переход</td></tr>
+      </table>
+      <h3>6.5 Управление формами и вводом пользователя</h3>
+      <p>Формы в React обрабатываются иначе, чем в классическом HTML. Вместо того чтобы отправлять данные на сервер с перезагрузкой страницы, мы контролируем каждый ввод через состояние.</p>
+      <p><strong>Контролируемые компоненты</strong> - значение поля ввода хранится в состоянии React и обновляется через onChange.</p>
+      <h3>6.6 Подъём состояния (Lifting State Up)</h3>
+      <p>В React данные обычно передаются сверху вниз - от родительского компонента к дочерним через props. Но что делать, если несколько дочерних компонентов нуждаются в одних и тех же данных?</p>
+      <p><strong>Решение:</strong> поднять состояние на уровень выше - в общего родителя. Родитель будет хранить состояние и передавать его дочерним компонентам через props.</p>
+      <div class="practice-section">
+        <h3>🎯 Вывод по лекции</h3>
+        <p>Вы изучили ключевые инструменты React для создания динамических приложений - хуки useState (управление состоянием компонента) и useEffect (выполнение побочных эффектов). Вы освоили маршрутизацию с помощью React Router, что позволяет создавать многостраничные приложения без перезагрузки страницы, а также научились управлять формами и поднимать состояние для обмена данными между компонентами. Эти навыки являются завершающим этапом в изучении основ React.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice6" class="page">
+    <div class="card">
+      <div class="lecture-navbar">
+        <button class="nav-btn secondary" data-page="lecture6">← Вернуться к лекции 6</button>
+        <button class="nav-btn" disabled>Последняя практика ✓</button>
+      </div>
+      <h1>🔄 ПРАКТИКА 6: React - Хуки и маршрутизация</h1>
+      <div class="practice-section">
+        <h3>🎯 Цели практики:</h3>
+        <ol>
+          <li>Научиться создавать React-компоненты с использованием состояния</li>
+          <li>Освоить хуки useState и useEffect</li>
+          <li>Научиться работать с формами в React</li>
+          <li>Освоить маршрутизацию с React Router</li>
+          <li>Научиться поднимать состояние между компонентами</li>
+        </ol>
+      </div>
+      <div class="note">
+        <strong>💡 Подготовка окружения:</strong><br>
+        Перед выполнением заданий создайте новый React-проект:<br>
+        <code>npm create vite@latest practice-6 -- --template react</code><br>
+        <code>cd practice-6</code><br>
+        <code>npm install react-router-dom</code><br>
+        <code>npm run dev</code>
+      </div>
+      <h3>📋 Задания на useState (1-6)</h3>
+      <ol>
+        <li>Создайте компонент Counter с тремя кнопками: «+1», «-1», «Сброс». Используйте useState для хранения счётчика.</li>
+        <li>Создайте компонент ToggleText. При нажатии на кнопку «Показать/Скрыть» текст «Привет, мир!» должен появляться или исчезать.</li>
+        <li>Создайте компонент ColorPicker. Создайте три кнопки с названиями цветов. При нажатии на кнопку фон компонента должен менять цвет.</li>
+        <li>Создайте компонент TodoInput. Добавьте поле ввода и кнопку «Добавить». При нажатии на кнопку добавляйте текст из поля ввода в массив.</li>
+        <li>Создайте компонент UserCard с состоянием isEdited. В режиме просмотра отображаются имя и возраст. При нажатии «Редактировать» появляются поля ввода.</li>
+        <li>Создайте компонент TemperatureConverter. Добавьте поле для ввода градусов Цельсия. Автоматически вычисляйте и отображайте значение в Фаренгейтах.</li>
+      </ol>
+      <h3>📋 Задания на useEffect (7-11)</h3>
+      <ol start="7">
+        <li>Создайте компонент DocumentTitleUpdater. Добавьте поле ввода текста. При каждом изменении текста заголовок документа должен меняться.</li>
+        <li>Создайте компонент Timer. Он должен отображать количество секунд, прошедших с момента загрузки компонента.</li>
+        <li>Создайте компонент WindowWidth. Он должен отображать текущую ширину окна браузера.</li>
+        <li>Создайте компонент PostFetcher. При первом рендере компонент должен загружать данные с API и отображать заголовок и содержимое поста.</li>
+        <li>Создайте компонент LocalStorageSaver. Добавьте поле ввода текста. При каждом изменении текста сохраняйте его в localStorage.</li>
+      </ol>
+      <h3>📋 Задания на формы (12-14)</h3>
+      <ol start="12">
+        <li>Создайте компонент RegistrationForm с полями: имя, email, пароль. При отправке формы выведите в консоль объект с данными.</li>
+        <li>Создайте компонент MultiStepForm с двумя шагами. Шаг 1: имя и возраст. Шаг 2: город и профессия.</li>
+        <li>Создайте компонент ShoppingList. Добавьте форму для добавления продукта. При добавлении продукт появляется в списке.</li>
+      </ol>
+      <h3>📋 Задания на React Router (15-18)</h3>
+      <ol start="15">
+        <li>Создайте приложение с тремя страницами: «Главная», «О нас», «Контакты». Используйте BrowserRouter, Routes, Route и Link.</li>
+        <li>Добавьте к приложению компонент NotFound для отображения страницы 404. Используйте path="*" в Route.</li>
+        <li>Создайте компонент ProfilePage, который принимает параметр username из URL. Используйте хук useParams.</li>
+        <li>Создайте приложение-блог. На главной странице отображаются заголовки постов. При клике на заголовок открывается страница поста.</li>
+      </ol>
+      <h3>📋 Задания на подъём состояния (19-20)</h3>
+      <ol start="19">
+        <li>Создайте компонент родителя ParentComponent и два дочерних компонента: ChildA (поле ввода) и ChildB (отображение текста). Состояние хранится в родителе.</li>
+        <li>Создайте приложение «Список задач» (To-Do List) со следующими возможностями: добавление новой задачи, отметка задачи как выполненной, удаление задачи, фильтр задач.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Добавьте в приложение «Список задач» сохранение задач в localStorage с помощью useEffect.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ========== ПРОЕКТЫ ========== -->
+  <div id="project1" class="page">
+    <div class="card">
+      <h1>📚 ПРОЕКТ 1: Интернет-магазин книг</h1>
+      <div class="final-project">
+        <h3>🎯 Цель:</h3>
+        <p>Создать полноценный веб-сайт интернет-магазина, используя HTML, CSS и JavaScript.</p>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Создайте HTML-документ с правильной структурой. В секции <code>&lt;head&gt;</code> укажите кодировку UTF-8, viewport для адаптивности и заголовок страницы «Книжный магазин».</li>
+        <li>Подключите внешний CSS-файл (styles.css) и внешний JavaScript-файл (script.js).</li>
+        <li>Создайте шапку сайта (<code>&lt;header&gt;</code>) с логотипом и навигационным меню: «Главная», «Каталог», «Корзина», «Контакты».</li>
+        <li>В навигации используйте ссылки-якоря для перемещения по странице. Добавьте ссылку «Наверх» внизу страницы.</li>
+        <li>Создайте главный баннер с заголовком <code>&lt;h1&gt;</code> «Добро пожаловать в Книжный магазин» и кнопкой «Перейти в каталог».</li>
+        <li>В разделе «Каталог» создайте 6 карточек книг. Каждая карточка должна содержать: изображение, название, автора, цену и кнопку «В корзину».</li>
+        <li>Для карточек используйте CSS-свойства: border, border-radius, box-shadow, padding, margin. Карточки должны располагаться в 3 колонки на десктопе и в 1 колонку на мобильных устройствах.</li>
+        <li>Используя селекторы по классу, задайте стили для карточек: при наведении (:hover) карточка должна увеличиваться в размере и менять цвет тени.</li>
+        <li>Создайте секцию «Корзина» с таблицей. Таблица должна содержать столбцы: «Название», «Цена», «Количество», «Сумма», «Действие».</li>
+        <li>Заполните таблицу 3 строками с примерами книг. Добавьте строку с итоговой суммой, используя colspan.</li>
+        <li>Создайте форму «Оформление заказа» с полями: имя, email, телефон, адрес, способ доставки, согласие на обработку данных.</li>
+        <li>Добавьте валидацию формы на JavaScript: все поля должны быть заполнены, email должен содержать @, телефон должен содержать только цифры.</li>
+        <li>При успешной отправке формы выводите всплывающее окно с сообщением «Заказ оформлен!» и очищайте все поля формы.</li>
+        <li>Создайте массив books в JavaScript из 6 объектов. Динамически сгенерируйте карточки товаров из этого массива при загрузке страницы.</li>
+        <li>Реализуйте функцию добавления товара в корзину: при клике на кнопку «В корзину» книга добавляется в массив cart.</li>
+        <li>Реализуйте функцию удаления товара из корзины: в каждой строке таблицы есть кнопка «Удалить».</li>
+        <li>Реализуйте функцию изменения количества товара в корзине. При изменении количества автоматически пересчитывается сумма.</li>
+        <li>Добавьте фильтрацию товаров в каталоге: три кнопки «Все», «До 500 руб.», «От 500 руб.».</li>
+        <li>Создайте кнопку «Переключить тему» (светлая/тёмная). При нажатии на кнопку класс <code>&lt;body&gt;</code> меняется.</li>
+        <li>Сохраняйте содержимое корзины в localStorage. При перезагрузке страницы корзина должна восстанавливаться.</li>
+      </ol>
+      <div style="margin-top: 2.5rem; padding: 2rem; background: linear-gradient(135deg, #00b894 0%, #00cec9 100%); border: 3px solid #00b894; border-radius: 16px; text-align: center; box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);">
+  <h3 style="color: white; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">✅ Проект выполнен и задеплоен!</h3>
+  <p style="margin-bottom: 1.5rem; color: white; font-size: 1.1rem; opacity: 0.95;">Посмотрите работающий сайт:</p>
+  <a href="https://gotsevdaniil0-hub.github.io/bookstore/" 
+     target="_blank" 
+     style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; padding: 1.2rem 2.5rem; background: white; color: #00b894; text-decoration: none; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; border: 2px solid white;">
+    🚀 Открыть Книжный магазин
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+      <polyline points="15 3 21 3 21 9"></polyline>
+      <line x1="10" y1="14" x2="21" y2="3"></line>
+    </svg>
+  </a>
+  <p style="margin-top: 1.5rem; font-size: 0.95rem; color: white; opacity: 0.9;">
+    📂 GitHub: 
+    <a href="https://github.com/gotsevdaniil0-hub/bookstore" 
+       target="_blank" 
+       style="color: #ffeaa7; text-decoration: underline; font-weight: 600;">
+      gotsevdaniil0-hub/bookstore
+    </a>
+  </p>
+</div>
+    </div>
+  </div>
+
+  <div id="project2" class="page">
+    <div class="card">
+      <h1>💪 ПРОЕКТ 2: Фитнес-трекер на React</h1>
+      <div class="final-project">
+        <h3>🎯 Цель:</h3>
+        <p>Создать полноценное React-приложение для отслеживания тренировок с использованием состояния, эффектов, маршрутизации и форм.</p>
+      </div>
+      <div class="note">
+        <strong>💡 Подготовка:</strong><br>
+        <code>npm create vite@latest fitness-tracker -- --template react</code><br>
+        <code>cd fitness-tracker</code><br>
+        <code>npm install react-router-dom</code><br>
+        <code>npm run dev</code>
+      </div>
+      <h3>📋 Задания:</h3>
+      <ol>
+        <li>Очистите шаблон App.jsx и создайте структуру папок: components/, pages/, styles/, utils/.</li>
+        <li>Создайте компонент Header с навигацией (Главная, Тренировки, Статистика, Профиль). Используйте Link из react-router-dom.</li>
+        <li>Создайте компонент Footer с копирайтом и ссылками на социальные сети.</li>
+        <li>Настройте маршрутизацию в App.jsx: маршруты для страниц HomePage, WorkoutsPage, StatisticsPage, ProfilePage.</li>
+        <li>На странице HomePage создайте приветственный баннер с заголовком и кнопкой «Начать тренировку».</li>
+        <li>Создайте состояние workouts (массив тренировок) в компоненте App и передайте его через props дочерним страницам.</li>
+        <li>На странице WorkoutsPage отобразите список тренировок в виде карточек. Используйте метод map() для рендеринга.</li>
+        <li>Создайте форму добавления тренировки (компонент WorkoutForm) на странице тренировок.</li>
+        <li>Реализуйте добавление новой тренировки в массив workouts. При отправке формы создавайте объект с уникальным id.</li>
+        <li>Реализуйте удаление тренировки: каждая карточка имеет кнопку «Удалить».</li>
+        <li>Реализуйте редактирование тренировки: при нажатии на карточку открывается форма с предзаполненными данными.</li>
+        <li>Используя useEffect, сохраняйте массив workouts в localStorage при каждом изменении.</li>
+        <li>На странице StatisticsPage создайте компонент Statistics и отобразите статистику: общее количество тренировок, общая длительность, калории.</li>
+        <li>Используя подъём состояния, создайте фильтр тренировок на странице WorkoutsPage по типу.</li>
+        <li>На странице ProfilePage создайте форму для редактирования профиля пользователя.</li>
+        <li>Сохраняйте данные профиля в localStorage и восстанавливайте их при загрузке страницы.</li>
+        <li>Добавьте на страницу статистики график, показывающий калории по дням.</li>
+        <li>Создайте компонент WorkoutChart, который отображает недельный прогресс.</li>
+        <li>Добавьте валидацию формы добавления тренировки: длительность и калории должны быть положительными числами.</li>
+        <li>Реализуйте экспорт тренировок в JSON: добавьте кнопку «Экспорт» на страницу тренировок.</li>
+        <li><strong>🎁 Бонусное задание:</strong> Добавьте возможность отмечать тренировку как выполненную. На странице статистики отображайте процент выполненных тренировок.</li>
+      </ol>
+      <!-- Ссылка на готовый проект -->
+<div style="margin-top: 2.5rem; padding: 2rem; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); border: 3px solid #8b5cf6; border-radius: 16px; text-align: center; box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);">
+  <h3 style="color: white; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">✅ Проект выполнен и задеплоен!</h3>
+  <p style="margin-bottom: 1.5rem; color: white; font-size: 1.1rem; opacity: 0.95;">Запустите фитнес-трекер в браузере:</p>
+  <a href="https://gotsevdaniil0-hub.github.io/fitness-tracker/" 
+     target="_blank" 
+     style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; padding: 1.2rem 2.5rem; background: white; color: #8b5cf6; text-decoration: none; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; border: 2px solid white;">
+    💪 Открыть Фитнес-трекер
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+      <polyline points="15 3 21 3 21 9"></polyline>
+      <line x1="10" y1="14" x2="21" y2="3"></line>
+    </svg>
+  </a>
+  <p style="margin-top: 1.5rem; font-size: 0.95rem; color: white; opacity: 0.9;">
+    📂 GitHub: 
+    <a href="https://github.com/gotsevdaniil0-hub/fitness-tracker" 
+       target="_blank" 
+       style="color: #fbbf24; text-decoration: underline; font-weight: 600;">
+      gotsevdaniil0-hub/fitness-tracker
+    </a>
+  </p>
+</div>
+    </div>
+  </div>
+
+  <!-- ========== ТЕСТЫ ========== -->
+  <div id="tests" class="page">
+    <div class="card">
+      <h1>📝 ПРОВЕРКА ЗНАНИЙ</h1>
+      <p>70 вопросов (10 на каждую тему). Типы: один вариант, несколько вариантов, ввод текста, сопоставление. Вопросы перемешиваются при каждом запуске.</p>
+    </div>
+    <div id="testsContainer" class="tests-container"></div>
+    <div id="pagination" class="pagination"></div>
+  </div>
+
+</div>
+
+<script>
+  // ======================== БАНК ВОПРОСОВ (70 вопросов, 4 типа) ========================
+  const QUESTION_BANK = [
+    // === HTML (1-10) ===
+    { id: 1, lec: 1, type: 'single', text: 'Кто создал язык HTML?', options: ['Брендан Эйх', 'Тим Бернерс-Ли', 'Хокон Виум Ли', 'Джордан Уолке'], correct: [1], explanation: 'HTML разработан Тимом Бернерсом-Ли в 1991-1992 годах в ЦЕРН (Женева).' },
+    { id: 2, lec: 1, type: 'single', text: 'Какой тег объявляет стандарт HTML5?', options: ['<html5>', '<!DOCTYPE html>', '<meta version="5">', '<doctype html5>'], correct: [1], explanation: '<!DOCTYPE html> — обязательная декларация для включения режима стандартов в браузере.' },
+    { id: 3, lec: 1, type: 'single', text: 'Какой тег используется для создания гиперссылки?', options: ['<link>', '<a>', '<href>', '<url>'], correct: [1], explanation: 'Тег <a> с атрибутом href создаёт гиперссылку: <a href="...">Текст</a>.' },
+    { id: 4, lec: 1, type: 'multiple', text: 'Какие атрибуты тега <img> являются критически важными? (выберите все подходящие)', options: ['src', 'alt', 'width', 'onclick'], correct: [0, 1, 2], explanation: 'src — путь к изображению, alt — альтернативный текст для доступности, width/height — предотвращают сдвиг макета.' },
+    { id: 5, lec: 1, type: 'single', text: 'Какой тег создаёт маркированный (неупорядоченный) список?', options: ['<ol>', '<dl>', '<ul>', '<list>'], correct: [2], explanation: '<ul> — unordered list (маркированный), <ol> — ordered list (нумерованный).' },
+    { id: 6, lec: 1, type: 'text', text: 'Напишите тег для создания абзаца текста (в нижнем регистре, без угловых скобок)', correctAnswer: 'p', explanation: 'Тег <p> обозначает абзац (paragraph) и является блочным элементом.' },
+    { id: 7, lec: 1, type: 'single', text: 'Какой тег используется для вставки изображения?', options: ['<image>', '<img>', '<picture>', '<src>'], correct: [1], explanation: '<img> — одиночный (пустой) тег для вставки изображений.' },
+    { id: 8, lec: 1, type: 'multiple', text: 'Какие из перечисленных тегов являются парными? (выберите все)', options: ['<p>', '<img>', '<div>', '<br>'], correct: [0, 2], explanation: '<p> и <div> — парные теги, требующие закрывающего тега. <img> и <br> — одиночные.' },
+    { id: 9, lec: 1, type: 'text', text: 'Как называется атрибут гиперссылки, указывающий URL перехода? (в нижнем регистре)', correctAnswer: 'href', explanation: 'Атрибут href (hypertext reference) указывает адрес, на который ведёт ссылка.' },
+    { id: 10, lec: 1, type: 'single', text: 'Какой тег задаёт заголовок самого высокого (главного) уровня?', options: ['<h6>', '<head>', '<h1>', '<title>'], correct: [2], explanation: '<h1> — заголовок первого (самого высокого) уровня. На странице должен быть только один h1.' },
+
+    // === CSS (11-20) ===
+    { id: 11, lec: 2, type: 'single', text: 'Какое CSS-свойство отвечает за внешний отступ элемента от соседей?', options: ['padding', 'border', 'margin', 'spacing'], correct: [2], explanation: 'margin — внешний отступ, padding — внутренний отступ, border — граница.' },
+    { id: 12, lec: 2, type: 'single', text: 'Какой псевдокласс применяется при наведении курсора мыши на элемент?', options: [':active', ':focus', ':hover', ':visited'], correct: [2], explanation: ':hover срабатывает при наведении, :active — в момент нажатия, :focus — при получении фокуса клавиатуры.' },
+    { id: 13, lec: 2, type: 'multiple', text: 'Какие способы подключения CSS к HTML-документу существуют? (выберите все)', options: ['Внешний файл через <link>', 'Внутренний стиль в теге <style>', 'Инлайновый атрибут style="..."', 'Тег <css>'], correct: [0, 1, 2], explanation: 'Три стандартных способа. Тега <css> не существует.' },
+    { id: 14, lec: 2, type: 'text', text: 'Напишите CSS-свойство для изменения цвета текста (в нижнем регистре)', correctAnswer: 'color', explanation: 'Свойство color задаёт цвет текста элемента. Для фона используется background-color.' },
+    { id: 15, lec: 2, type: 'single', text: 'Что делает свойство box-sizing: border-box?', options: ['Добавляет padding и border к заданной width/height', 'Включает padding и border в расчёт width/height', 'Отключает блочную модель', 'Делает элемент невидимым'], correct: [1], explanation: 'С border-box ширина элемента = заданная width, включая padding и border. Упрощает расчёты вёрстки.' },
+    { id: 16, lec: 2, type: 'single', text: 'Какой тип селектора имеет наивысший приоритет (специфичность)?', options: ['селектор по тегу (p)', 'селектор по классу (.box)', 'селектор по ID (#header)', 'универсальный селектор (*)'], correct: [2], explanation: 'Приоритет: !important > inline-стили > селектор по ID > по классу > по тегу > универсальный.' },
+    { id: 17, lec: 2, type: 'multiple', text: 'Какие значения может принимать свойство position в CSS? (выберите все)', options: ['static', 'relative', 'absolute', 'fixed', 'sticky'], correct: [0, 1, 2, 3, 4], explanation: 'Все перечисленные значения являются валидными для свойства position.' },
+    { id: 18, lec: 2, type: 'text', text: 'Как называется модель, описывающая составляющие элемента: content, padding, border, margin? (в нижнем регистре, через дефис)', correctAnswer: 'box-model', explanation: 'Блочная модель (box model) — фундаментальное понятие, описывающее расчёт размеров элементов.' },
+    { id: 19, lec: 2, type: 'single', text: 'Как задать элементу прозрачность 50% с помощью CSS?', options: ['opacity: 0.5', 'transparent: 50%', 'alpha: 0.5', 'visibility: half'], correct: [0], explanation: 'opacity принимает значения от 0 (полностью прозрачный) до 1 (полностью непрозрачный).' },
+    { id: 20, lec: 2, type: 'multiple', text: 'Какие единицы измерения можно использовать в CSS для задания размеров? (выберите все)', options: ['px', '%', 'em', 'rem', 'vw'], correct: [0, 1, 2, 3, 4], explanation: 'Все перечисленные единицы поддерживаются стандартом CSS и широко применяются.' },
+
+    // === JavaScript (21-30) ===
+    { id: 21, lec: 3, type: 'single', text: 'Как объявить неизменяемую (константную) переменную в современном JavaScript?', options: ['let', 'var', 'const', 'static'], correct: [2], explanation: 'const создаёт константу — переменную, ссылку/значение которой нельзя переназначить после инициализации.' },
+    { id: 22, lec: 3, type: 'single', text: 'Что выведет в консоль выражение: console.log(5 === "5")?', options: ['true', 'false', 'undefined', 'Ошибка выполнения'], correct: [1], explanation: '=== (строгое равенство) сравнивает и значение, и тип. Число 5 !== строке "5", поэтому результат — false.' },
+    { id: 23, lec: 3, type: 'multiple', text: 'Какие из перечисленных типов данных являются примитивными в JavaScript? (выберите все)', options: ['string', 'number', 'boolean', 'object', 'null'], correct: [0, 1, 2, 4], explanation: 'Примитивы: string, number, boolean, null, undefined, symbol, bigint. object — ссылочный (непримитивный) тип.' },
+    { id: 24, lec: 3, type: 'text', text: 'Напишите оператор для строгого сравнения в JavaScript (три символа)', correctAnswer: '===', explanation: '=== и !== сравнивают значение И тип, без автоматического приведения типов.' },
+    { id: 25, lec: 3, type: 'single', text: 'Что вернёт выражение: typeof null?', options: ["'null'", "'undefined'", "'object'", "'number'"], correct: [2], explanation: 'Это историческая особенность/баг JS: typeof null === "object". Исправление сломало бы обратную совместимость.' },
+    { id: 26, lec: 3, type: 'single', text: 'Какой тип цикла гарантированно выполнит тело хотя бы один раз?', options: ['for', 'while', 'do...while', 'for...of'], correct: [2], explanation: 'do...while проверяет условие ПОСЛЕ выполнения тела цикла, поэтому тело выполнится минимум один раз.' },
+    { id: 27, lec: 3, type: 'multiple', text: 'Какие способы объявления функций существуют в современном JavaScript? (выберите все)', options: ['Function declaration (function name() {})', 'Function expression (const fn = function() {})', 'Стрелочная функция (() => {})', 'Метод в объекте (obj: { method() {} })'], correct: [0, 1, 2, 3], explanation: 'Все перечисленные способы являются валидными и широко используются в современной разработке.' },
+    { id: 28, lec: 3, type: 'text', text: 'Как называется метод массива для выполнения функции на каждом элементе? (camelCase, без скобок)', correctAnswer: 'forEach', explanation: 'arr.forEach(callback) выполняет переданную функцию для каждого элемента массива.' },
+    { id: 29, lec: 3, type: 'single', text: 'Что делает логический оператор && (И)?', options: ['Возвращает true, если хотя бы один операнд истинен', 'Возвращает true, только если оба операнда истинны', 'Инвертирует значение', 'Возвращает первый истинный операнд'], correct: [1], explanation: '&& — логическое И: возвращает true, только если ОБА операнда truthy.' },
+    { id: 30, lec: 3, type: 'multiple', text: 'Какие значения являются "falsy" (ложными) в логическом контексте JavaScript? (выберите все)', options: ['0', "'' (пустая строка)", 'null', 'undefined', 'false'], correct: [0, 1, 2, 3, 4], explanation: 'Все перечисленные значения приводятся к false в условиях if, while и логических операциях.' },
+
+    // === Сравнение (31-40) ===
+    { id: 31, lec: 3.5, type: 'match', text: 'Сопоставьте технологии с их основной ролью в веб-разработке:', pairs: [['HTML', 'Структура и семантика контента'], ['CSS', 'Визуальное оформление и макет'], ['JavaScript', 'Поведение и интерактивность']], explanation: 'HTML — каркас, CSS — стиль, JS — логика. Три кита фронтенда.' },
+    { id: 32, lec: 3.5, type: 'single', text: 'Какая технология отвечает за интерактивность и реакцию на действия пользователя?', options: ['HTML', 'CSS', 'JavaScript'], correct: [2], explanation: 'JavaScript обрабатывает клики, ввод, анимации, запросы к серверу и динамическое обновление контента.' },
+    { id: 33, lec: 3.5, type: 'match', text: 'Сопоставьте аналогии из строительства с веб-технологиями:', pairs: [['Фундамент и стены', 'HTML'], ['Краска и отделка', 'CSS'], ['Электрика и автоматика', 'JavaScript']], explanation: 'Структура = HTML, дизайн = CSS, функционал = JS. Только вместе они создают полноценный продукт.' },
+    { id: 34, lec: 3.5, type: 'single', text: 'В какой среде выполняется JavaScript на стороне сервера?', options: ['Deno', 'Node.js', 'Apache HTTP Server'], correct: [1], explanation: 'Node.js — серверная среда выполнения на базе V8, позволяющая запускать JS вне браузера.' },
+    { id: 35, lec: 3.5, type: 'text', text: 'Какое расширение имеют файлы таблиц стилей (без точки)?', correctAnswer: 'css', explanation: 'Файлы CSS имеют расширение .css' },
+    { id: 36, lec: 3.5, type: 'single', text: 'Какая из перечисленных технологий НЕ является языком программирования?', options: ['JavaScript', 'Python', 'HTML'], correct: [2], explanation: 'HTML — язык разметки, описывающий структуру. Он не имеет логики, условий, циклов.' },
+    { id: 37, lec: 3.5, type: 'match', text: 'Сопоставьте расширения файлов с соответствующими технологиями:', pairs: [['.html', 'Разметка страницы'], ['.css', 'Таблицы стилей'], ['.js', 'Скрипты и логика']], explanation: 'Каждое расширение соответствует своей технологии и обрабатывается браузером особым образом.' },
+    { id: 38, lec: 3.5, type: 'single', text: 'В каком порядке рекомендуется подключать ресурсы в <head> HTML-документа?', options: ['CSS → JS → HTML-контент', 'HTML-метатеги → CSS → JS', 'JS → HTML → CSS'], correct: [1], explanation: 'Сначала метаданные (charset, viewport), потом стили (чтобы избежать мигания), потом скрипты (с defer/async).' },
+    { id: 39, lec: 3.5, type: 'multiple', text: 'Какие возможности есть в JavaScript, но отсутствуют в чистом CSS? (выберите все)', options: ['Условные операторы (if/else)', 'Циклы (for, while)', 'Работа с массивами и объектами', 'Переменные'], correct: [0, 1, 2], explanation: 'CSS не является языком программирования: в нём нет условий, циклов, сложной логики. Переменные есть в обоих (через CSS Custom Properties).' },
+    { id: 40, lec: 3.5, type: 'single', text: 'Кто является создателем языка таблиц стилей CSS?', options: ['Тим Бернерс-Ли', 'Хокон Виум Ли', 'Брендан Эйх'], correct: [1], explanation: 'CSS разработан Хоконом Виумом Ли в 1996 году в рамках Консорциума Всемирной паутины (W3C).' },
+
+    // === DOM & События (41-50) ===
+    { id: 41, lec: 4, type: 'single', text: 'Какой метод JavaScript ищет ПЕРВЫЙ элемент, соответствующий заданному CSS-селектору?', options: ['getElementById()', 'querySelector()', 'getElementsByClassName()', 'getElementsByTagName()'], correct: [1], explanation: 'querySelector() возвращает первый найденный элемент или null, если ничего не найдено.' },
+    { id: 42, lec: 4, type: 'single', text: 'Как правильно добавить класс к элементу через JavaScript?', options: ['element.class = "name"', 'element.addClass("name")', 'element.classList.add("name")', 'element.setAttribute("class", "name")'], correct: [2], explanation: 'classList.add() — современный, безопасный и рекомендуемый способ добавления класса.' },
+    { id: 43, lec: 4, type: 'match', text: 'Сопоставьте DOM-методы с их назначением:', pairs: [['textContent', 'Получить/установить текстовое содержимое'], ['innerHTML', 'Получить/установить HTML-содержимое'], ['style', 'Доступ к инлайновым стилям'], ['classList', 'Работа с классами элемента']], explanation: 'textContent — безопасный текст, innerHTML — разметка (осторожно с XSS), style — стили, classList — классы.' },
+    { id: 44, lec: 4, type: 'text', text: 'Как называется метод объекта события для отмены стандартного действия браузера? (camelCase)', correctAnswer: 'preventDefault', explanation: 'event.preventDefault() отменяет стандартное поведение, например, отправку формы или переход по ссылке.' },
+    { id: 45, lec: 4, type: 'single', text: 'Какое событие срабатывает при каждом изменении значения в поле ввода <input>?', options: ['change', 'input', 'keyup', 'Все перечисленные'], correct: [3], explanation: 'input — мгновенно при каждом символе, change — при потере фокуса и изменении, keyup — при отпускании клавиши.' },
+    { id: 46, lec: 4, type: 'single', text: 'Какой способ добавления обработчика события является современным стандартом?', options: ['element.onclick = function() {}', 'element.addEventListener("click", function() {})', 'element.bind("click", function() {})', 'element.on("click", function() {})'], correct: [1], explanation: 'addEventListener позволяет вешать несколько обработчиков, контролировать фазы и удалять слушатели.' },
+    { id: 47, lec: 4, type: 'match', text: 'Сопоставьте типы событий с моментами их срабатывания:', pairs: [['click', 'Нажатие кнопки мыши на элементе'], ['submit', 'Отправка формы'], ['focus', 'Получение элементом фокуса ввода'], ['DOMContentLoaded', 'Полная загрузка и парсинг HTML-документа']], explanation: 'click — клик, submit — форма, focus — фокус, DOMContentLoaded — готовность дерева.' },
+    { id: 48, lec: 4, type: 'text', text: 'Как называется событие, срабатывающее после полной загрузки и парсинга DOM-дерева? (camelCase)', correctAnswer: 'DOMContentLoaded', explanation: 'DOMContentLoaded срабатывает, когда весь HTML загружен и распарсен, но до загрузки изображений и стилей.' },
+    { id: 49, lec: 4, type: 'single', text: 'Что возвращает метод querySelectorAll(".box")?', options: ['Массив (Array) элементов', 'Один элемент', 'Коллекцию NodeList элементов', 'null'], correct: [2], explanation: 'querySelectorAll возвращает NodeList — похожую на массив, но не являющуюся полноценным массивом коллекцию.' },
+    { id: 50, lec: 4, type: 'multiple', text: 'Какие методы позволяют изменять DOM-дерево? (выберите все)', options: ['createElement()', 'appendChild()', 'remove()', 'console.log()'], correct: [0, 1, 2], explanation: 'console.log() только выводит информацию в консоль, не изменяя страницу.' },
+
+    // === React Basics (51-60) ===
+    { id: 51, lec: 5, type: 'single', text: 'Что такое JSX в контексте React?', options: ['Новый язык программирования', 'Расширение JavaScript, позволяющее писать HTML-подобный синтаксис внутри кода', 'Библиотека для маршрутизации', 'Сборщик проектов'], correct: [1], explanation: 'JSX — синтаксический сахар, который транспилируется в вызовы React.createElement().' },
+    { id: 52, lec: 5, type: 'single', text: 'Какую главную проблему решает технология Virtual DOM в React?', options: ['Хранение данных пользователя', 'Ускорение обновления реального DOM через эффективное сравнение изменений (diffing)', 'Компиляцию JSX в машинный код', 'Замену CSS-стилей'], correct: [1], explanation: 'Virtual DOM — лёгкая копия в памяти. React сравнивает старую и новую версии, применяя только минимальные изменения к реальному DOM.' },
+    { id: 53, lec: 5, type: 'match', text: 'Сопоставьте ключевые концепции React с их описанием:', pairs: [['Компоненты', 'Независимые, переиспользуемые строительные блоки интерфейса'], ['Props', 'Неизменяемые данные, передаваемые от родительского компонента к дочернему'], ['State', 'Внутреннее, изменяемое состояние компонента'], ['JSX', 'Синтаксис, объединяющий разметку и логику']], explanation: 'Компоненты — кирпичики, props — входные данные, state — внутреннее состояние, JSX — синтаксис.' },
+    { id: 54, lec: 5, type: 'text', text: 'Как называется библиотека React для рендеринга компонентов в браузерный DOM? (camelCase)', correctAnswer: 'ReactDOM', explanation: 'ReactDOM предоставляет методы createRoot(), render() и другие для работы с реальным браузерным окружением.' },
+    { id: 55, lec: 5, type: 'single', text: 'Каким образом родительский компонент передаёт данные дочернему в React?', options: ['Через state', 'Через props', 'Через context', 'Через localStorage'], correct: [1], explanation: 'Props (properties) — read-only данные, передаваемые сверху вниз по дереву компонентов.' },
+    { id: 56, lec: 5, type: 'single', text: 'Какой метод используется для рендеринга React-приложения в React 18 и новее?', options: ['React.render()', 'ReactDOM.createRoot(container).render(<App />)', 'document.appendChild()', 'React.mount()'], correct: [1], explanation: 'В React 18+ используется новый API: ReactDOM.createRoot(root).render(<App />) для поддержки Concurrent Mode.' },
+    { id: 57, lec: 5, type: 'match', text: 'Сопоставьте инструменты экосистемы React с их назначением:', pairs: [['Vite / Webpack', 'Сборка и транспиляция проекта'], ['React Router', 'Маршрутизация в SPA-приложениях'], ['Tailwind CSS / Styled Components', 'Стилизация компонентов'], ['Redux / Zustand', 'Управление глобальным состоянием']], explanation: 'Каждый инструмент решает свою задачу в большом приложении.' },
+    { id: 58, lec: 5, type: 'multiple', text: 'Какие преимущества даёт использование JSX? (выберите все)', options: ['Знакомый синтаксис для верстальщиков', 'Автоматическая защита от XSS-атак', 'Автоматическая оптимизация производительности', 'Наглядность структуры интерфейса'], correct: [0, 1, 3], explanation: 'JSX экранирует вставки {}, предотвращая инъекции. Оптимизация — задача React, а не JSX.' },
+    { id: 59, lec: 5, type: 'single', text: 'Что возвращает функциональный компонент React?', options: ['HTML-строку', 'JSX / React-элемент (виртуальное описание)', 'Реальный DOM-узел', 'Promise'], correct: [1], explanation: 'Компонент возвращает JSX, который затем преобразуется в виртуальные элементы для сравнения.' },
+    { id: 60, lec: 5, type: 'text', text: 'Как называется процесс преобразования кода на современном синтаксисе (JSX, ES6+) в код, понятный старым браузерам? (в нижнем регистре)', correctAnswer: 'транспиляция', explanation: 'Транспиляция выполняется сборщиками вроде Babel, SWC или esbuild на этапе сборки проекта.' },
+
+    // === React Hooks (61-70) ===
+    { id: 61, lec: 6, type: 'single', text: 'Какой хук используется для управления локальным состоянием функционального компонента?', options: ['useEffect', 'useState', 'useContext', 'useReducer'], correct: [1], explanation: 'useState возвращает массив [текущееЗначение, функцияОбновления] для работы с состоянием.' },
+    { id: 62, lec: 6, type: 'single', text: 'Когда выполнится эффект, заданный как: useEffect(() => { ... }, [])?', options: ['При каждом рендере компонента', 'Только один раз после первого рендера (монтирования)', 'Никогда не выполнится', 'Только при изменении пропсов'], correct: [1], explanation: 'Пустой массив зависимостей [] означает: выполнить эффект только при монтировании компонента.' },
+    { id: 63, lec: 6, type: 'match', text: 'Сопоставьте хуки React с их основным назначением:', pairs: [['useState', 'Управление локальным состоянием компонента'], ['useEffect', 'Выполнение побочных эффектов: запросы, таймеры, подписки'], ['useNavigate', 'Программная навигация между маршрутами'], ['useParams', 'Получение параметров из URL маршрута']], explanation: 'useState — state, useEffect — эффекты, useNavigate — навигация, useParams — параметры.' },
+    { id: 64, lec: 6, type: 'text', text: 'Как называется хук для выполнения побочных эффектов (запросы к API, работа с localStorage)? (camelCase)', correctAnswer: 'useEffect', explanation: 'useEffect позволяет выполнять код после рендеринга и управлять жизненным циклом эффекта.' },
+    { id: 65, lec: 6, type: 'single', text: 'Какой хук React Router используется для получения динамического параметра из URL (например, /user/:id)?', options: ['useLocation', 'useParams', 'useHistory', 'useRoute'], correct: [1], explanation: 'useParams возвращает объект с параметрами маршрута: { id: "123" }.' },
+    { id: 66, lec: 6, type: 'single', text: 'Что означает термин "Lifting State Up" (подъём состояния) в React?', options: ['Сохранение состояния в localStorage', 'Перенос состояния в ближайшего общего родителя компонентов для синхронизации', 'Использование Redux вместо useState', 'Создание глобальных переменных'], correct: [1], explanation: 'Когда несколько компонентов нуждаются в одних данных, состояние поднимают в их общего родителя.' },
+    { id: 67, lec: 6, type: 'match', text: 'Сопоставьте варианты массива зависимостей в useEffect с поведением:', pairs: [['[]', 'Выполнить эффект только при монтировании компонента'], ['[a, b]', 'Выполнить при монтировании и при изменении a или b'], ['(отсутствует)', 'Выполнять после каждого рендера компонента']], explanation: 'Массив зависимостей контролирует, когда эффект должен перезапускаться.' },
+    { id: 68, lec: 6, type: 'text', text: 'Как называется хук для программного перехода между страницами в React Router? (camelCase)', correctAnswer: 'useNavigate', explanation: 'const navigate = useNavigate(); navigate("/about"); — переход на страницу /about.' },
+    { id: 69, lec: 6, type: 'single', text: 'Что такое контролируемый компонент (Controlled Component) в формах React?', options: ['Компонент, не имеющий внутреннего state', 'Компонент, значение которого управляется через state и onChange', 'Компонент, работающий только с input[type="text"]', 'Компонент, использующий useRef для доступа к DOM'], correct: [1], explanation: 'В контролируемом компоненте значение поля хранится в state React, а onChange обновляет это состояние.' },
+    { id: 70, lec: 6, type: 'multiple', text: 'Для чего нужен массив зависимостей во втором аргументе useEffect? (выберите все)', options: ['Указать, при изменении каких значений нужно перезапустить эффект', 'Пустой массив [] — выполнить эффект только один раз при монтировании', 'Отсутствие массива — выполнять эффект после каждого рендера', 'Полностью отключить выполнение эффекта'], correct: [0, 1, 2], explanation: 'Зависимости — механизм контроля жизненного цикла эффекта. Отключить эффект нельзя, но можно вернуть пустую функцию очистки.' }
+  ];
+
+  // ======================== УТИЛИТЫ ========================
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+
+  function normalizeText(str) {
+    return String(str || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  // ======================== СОСТОЯНИЕ ТЕСТА ========================
+  let quiz = {
+    items: [],
+    answers: {},
+    submitted: false,
+    score: 0,
+    startTime: null,
+    endTime: null,
+    page: 0,
+    perPage: 10
+  };
+
+  // ======================== РЕНДЕР ТЕСТА ========================
+  function renderQuiz() {
+    const container = document.getElementById('testsContainer');
+    if (!container) return;
+
+    const start = quiz.page * quiz.perPage;
+    const end = start + quiz.perPage;
+    const pageItems = quiz.items.slice(start, end);
+    const totalPages = Math.ceil(quiz.items.length / quiz.perPage);
+
+    const answered = Object.keys(quiz.answers).filter(function(k) {
+      const v = quiz.answers[k];
+      return v !== undefined && v !== '' && (Array.isArray(v) ? v.length > 0 : typeof v === 'object' ? Object.keys(v).length > 0 : true);
+    }).length;
+    const pct = Math.round((answered / quiz.items.length) * 100);
+
+    let html = '<div class="card" style="position:sticky;top:0;z-index:5;margin-bottom:2rem;backdrop-filter:blur(10px)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">' +
+      '<strong>Страница ' + (quiz.page + 1) + ' из ' + totalPages + '</strong>' +
+      '<span id="progressText">Прогресс: ' + pct + '%</span></div>' +
+      '<div style="background:var(--border);border-radius:6px;height:6px;overflow:hidden">' +
+      '<div id="quizProgressBar" style="background:var(--accent);height:100%;width:' + pct + '%;transition:width 0.3s"></div></div>' +
+      '<div style="margin-top:0.8rem;font-size:0.9rem;color:var(--text-secondary)">Типы: ' +
+      '<span style="color:#a29bfe">● Один</span> ' +
+      '<span style="color:#fdcb6e;margin-left:8px">● Несколько</span> ' +
+      '<span style="color:#00b894;margin-left:8px">● Текст</span> ' +
+      '<span style="color:#ff9ff3;margin-left:8px">● Сопоставление</span></div></div>';
+
+    pageItems.forEach(function(q, idx) {
+      const gIdx = start + idx;
+      const userAns = quiz.answers[q.id];
+      const typeLabel = q.type === 'single' ? 'один вариант' : q.type === 'multiple' ? 'выберите все' : q.type === 'text' ? 'введите ответ' : 'сопоставление';
+
+      html += '<div class="question-card" id="q-' + q.id + '">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">' +
+        '<span class="question-text" style="font-weight:600">' + (gIdx + 1) + '. ' + q.text + '</span>' +
+        '<span style="font-size:0.8rem;color:var(--text-secondary);padding:2px 8px;background:rgba(255,255,255,0.05);border-radius:4px">' + typeLabel + '</span></div>';
+
+      if (q.type === 'text') {
+        html += '<input type="text" class="quiz-text-input" data-id="' + q.id + '" value="' + escapeHtml(userAns || '') + '" placeholder="Ваш ответ..." style="width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:#0e1118;color:var(--text-primary);font-size:1rem">';
+      } else if (q.type === 'match') {
+        html += '<div class="match-grid"><div class="match-col"><strong style="color:var(--accent);margin-bottom:4px">Левый столбец</strong>';
+        q.pairs.forEach(function(pair) { html += '<div class="match-item">' + escapeHtml(pair[0]) + '</div>'; });
+        html += '</div><div class="match-arrow">↔</div><div class="match-col"><strong style="color:var(--success);margin-bottom:4px">Выберите соответствие</strong>';
+        q.pairs.forEach(function(pair, i) {
+          const selVal = userAns && userAns[i] !== undefined ? userAns[i] : '';
+          html += '<select class="match-select" data-qid="' + q.id + '" data-pair="' + i + '"><option value="">— Выберите —</option>';
+          shuffle(q.pairs.map(function(p) { return p[1]; })).forEach(function(opt) {
+            html += '<option value="' + escapeHtml(opt) + '"' + (selVal === opt ? ' selected' : '') + '>' + escapeHtml(opt) + '</option>';
+          });
+          html += '</select>';
+        });
+        html += '</div></div>';
+      } else {
+        html += '<div class="options-list">';
+        q.options.forEach(function(opt, oIdx) {
+          const type = q.type === 'single' ? 'radio' : 'checkbox';
+          const name = 'q-' + q.id;
+          const checked = Array.isArray(userAns) ? userAns.indexOf(oIdx) !== -1 : (userAns === oIdx);
+          html += '<label class="quiz-option-label"><input type="' + type + '" name="' + name + '" data-qid="' + q.id + '" data-idx="' + oIdx + '"' + (checked ? ' checked' : '') + ' style="margin-top:4px;width:20px;height:20px;accent-color:var(--accent)"><div><span style="font-weight:600;color:var(--accent);margin-right:6px">' + String.fromCharCode(65+oIdx) + '.</span><span>' + escapeHtml(opt) + '</span></div></label>';
+        });
+        html += '</div>';
+      }
+
+      if (quiz.submitted) {
+        let isCorrect = false;
+        if (q.type === 'text') {
+          const acceptable = q.acceptableAnswers || [q.correctAnswer];
+          for (let i = 0; i < acceptable.length; i++) {
+            if (normalizeText(acceptable[i]) === normalizeText(userAns || '')) { isCorrect = true; break; }
+          }
+        } else if (q.type === 'match') {
+          if (userAns && Object.keys(userAns).length === q.pairs.length) {
+            isCorrect = true;
+            for (let j = 0; j < q.pairs.length; j++) {
+              if (userAns[j] !== q.pairs[j][1]) { isCorrect = false; break; }
+            }
+          }
+        } else {
+          const u = Array.isArray(userAns) ? userAns.slice().sort() : [];
+          const c = q.correct.slice().sort();
+          isCorrect = u.length === c.length && u.every(function(v, k) { return v === c[k]; });
+        }
+        html += '<div class="feedback" style="border-left-color:' + (isCorrect ? 'var(--success)' : 'var(--error)') + '"><strong style="color:' + (isCorrect ? 'var(--success)' : 'var(--error)') + '">' + (isCorrect ? '✓ Верно!' : '✗ Неверно') + '</strong><br><span style="color:var(--text-secondary);font-size:0.95rem">' + q.explanation + '</span></div>';
+      }
+      html += '</div>';
+    });
+
+    html += '<div style="display:flex;justify-content:space-between;margin-top:2rem"><button class="page-btn" id="prevPageBtn"' + (quiz.page === 0 ? ' disabled' : '') + '>← Назад</button><button class="page-btn" id="nextPageBtn"' + (quiz.page >= totalPages - 1 ? ' disabled' : '') + '>Вперёд →</button></div>';
+    
+    if (!quiz.submitted && quiz.page === totalPages - 1) {
+      html += '<div class="card" style="text-align:center;margin-top:2rem"><button id="submitQuizBtn" class="nav-btn practice" style="padding:1rem 3rem;font-size:1.1rem;width:100%">✅ Завершить и проверить</button></div>';
+    }
+
+    if (quiz.submitted) {
+      const sPct = Math.round((quiz.score / quiz.items.length) * 100);
+      const sec = quiz.endTime && quiz.startTime ? Math.round((quiz.endTime - quiz.startTime)/1000) : 0;
+      let msg, col;
+      if (sPct >= 90) { msg = '🏆 Отлично! Вы эксперт!'; col = 'var(--success)'; }
+      else if (sPct >= 70) { msg = '👍 Хорошо! Есть куда расти'; col = 'var(--accent)'; }
+      else if (sPct >= 50) { msg = '📚 Базово, повторите лекции'; col = 'var(--warning)'; }
+      else { msg = '💪 Не сдавайтесь!'; col = 'var(--error)'; }
+      html = '<div class="card" style="text-align:center;border:2px solid ' + col + '"><h2 style="color:' + col + '">' + msg + '</h2><div style="font-size:4rem;font-weight:bold">' + quiz.score + '/' + quiz.items.length + '</div><p style="color:var(--text-secondary)">Результат: <strong>' + sPct + '%</strong> | Время: <strong>' + sec + ' сек</strong></p><button id="resetQuizBtn" class="nav-btn" style="margin-top:1rem">🔄 Пройти заново</button></div>' + html;
+    }
+
+    container.innerHTML = html;
+    updateProgressUI();
+  }
+
+  // ======================== ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ ========================
+  function setupGlobalListeners() {
+    document.addEventListener('click', function(e) {
+      const t = e.target.closest('button');
+      if (!t) return;
+      if (t.id === 'prevPageBtn' && quiz.page > 0) { quiz.page--; renderQuiz(); window.scrollTo({top:0}); }
+      else if (t.id === 'nextPageBtn' && quiz.page < Math.ceil(quiz.items.length/quiz.perPage)-1) { quiz.page++; renderQuiz(); window.scrollTo({top:0}); }
+      else if (t.id === 'submitQuizBtn') submitQuiz();
+      else if (t.id === 'resetQuizBtn') initQuiz();
+    });
+
+    document.addEventListener('change', function(e) {
+      const inp = e.target;
+      if (inp.matches('input[type="radio"], input[type="checkbox"]')) {
+        const qid = parseInt(inp.dataset.qid), idx = parseInt(inp.dataset.idx);
+        let q = null;
+        for (let i = 0; i < quiz.items.length; i++) { if (quiz.items[i].id === qid) { q = quiz.items[i]; break; } }
+        if (!q) return;
+        if (q.type === 'single') { quiz.answers[qid] = inp.checked ? idx : undefined; }
+        else {
+          let arr = quiz.answers[qid] || [];
+          if (inp.checked) {
+            if (arr.indexOf(idx) === -1) arr.push(idx);
+          } else {
+            arr = arr.filter(function(item) { return item !== idx; });
+          }
+          quiz.answers[qid] = arr.length ? arr : undefined;
+        }
+        renderQuiz();
+      } else if (inp.matches('.match-select')) {
+        const qid2 = parseInt(inp.dataset.qid), pair = inp.dataset.pair;
+        if (!quiz.answers[qid2]) quiz.answers[qid2] = {};
+        quiz.answers[qid2][pair] = inp.value;
+        let allEmpty = true;
+        for (const key in quiz.answers[qid2]) { if (quiz.answers[qid2][key] !== '') { allEmpty = false; break; } }
+        if (allEmpty) delete quiz.answers[qid2];
+        updateProgressUI();
+      }
+    });
+
+    document.addEventListener('input', function(e) {
+      if (e.target.matches('.quiz-text-input')) {
+        quiz.answers[e.target.dataset.id] = e.target.value;
+        updateProgressUI();
+      }
+    });
+  }
+
+  function updateProgressUI() {
+    const answered = Object.keys(quiz.answers).filter(function(k) {
+      const v = quiz.answers[k];
+      return v !== undefined && v !== '' && (Array.isArray(v) ? v.length > 0 : typeof v === 'object' ? Object.keys(v).length > 0 : true);
+    }).length;
+    const pct = Math.round((answered / quiz.items.length) * 100);
+    const bar = document.getElementById('quizProgressBar'), txt = document.getElementById('progressText');
+    if (bar) bar.style.width = pct + '%';
+    if (txt) txt.textContent = 'Прогресс: ' + pct + '%';
+  }
+
+  function submitQuiz() {
+    const answered = Object.keys(quiz.answers).filter(function(k) {
+      const v = quiz.answers[k];
+      return v !== undefined && v !== '' && (Array.isArray(v) ? v.length > 0 : typeof v === 'object' ? Object.keys(v).length > 0 : true);
+    }).length;
+    if (!confirm('Отвечено на ' + answered + ' из ' + quiz.items.length + '. Отправить?')) return;
+    quiz.score = 0;
+    quiz.items.forEach(function(q) {
+      let correct = false;
+      const ans = quiz.answers[q.id];
+      if (q.type === 'text') {
+        const acceptable = q.acceptableAnswers || [q.correctAnswer];
+        for (let i = 0; i < acceptable.length; i++) {
+          if (normalizeText(acceptable[i]) === normalizeText(ans || '')) { correct = true; break; }
+        }
+      } else if (q.type === 'match') {
+        if (ans && Object.keys(ans).length === q.pairs.length) {
+          correct = true;
+          for (let j = 0; j < q.pairs.length; j++) {
+            if (ans[j] !== q.pairs[j][1]) { correct = false; break; }
+          }
+        }
+      } else {
+        const u = Array.isArray(ans) ? ans.slice().sort() : [];
+        const c = q.correct.slice().sort();
+        correct = u.length === c.length && u.every(function(v, k) { return v === c[k]; });
+      }
+      if (correct) quiz.score++;
+    });
+    quiz.submitted = true; quiz.endTime = Date.now(); quiz.page = 0;
+    renderQuiz(); window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function initQuiz() {
+    quiz = { items: shuffle(QUESTION_BANK), answers: {}, submitted: false, score: 0, startTime: Date.now(), endTime: null, page: 0, perPage: 10 };
+    renderQuiz();
+  }
+
+  // ======================== SPA НАВИГАЦИЯ ========================
+  const pages = ['lecture1','practice1','lecture2','practice2','lecture3','practice3','lecture3.5','practice3.5','lecture4','practice4','lecture5','practice5','lecture6','practice6','project1','project2','tests'];
+  let currentPage = 'lecture1';
+
+  function showPage(id) {
+    pages.forEach(function(p) {
+      const el = document.getElementById(p);
+      if (el) { el.classList.remove('active-page'); el.setAttribute('aria-hidden','true'); }
+    });
+    const active = document.getElementById(id);
+    if (active) { active.classList.add('active-page'); active.setAttribute('aria-hidden','false'); if (active.focus) active.focus(); }
+    currentPage = id;
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.toggle('active', n.dataset.page === id); });
+    if (id === 'tests') initQuiz();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.addEventListener('click', function() { showPage(n.dataset.page); }); });
+  document.querySelectorAll('.nav-btn[data-page]').forEach(function(b) { b.addEventListener('click', function() { showPage(b.dataset.page); }); });
+
+  const menu = document.getElementById('menuToggle'), sb = document.getElementById('sidebar');
+  if (menu) menu.addEventListener('click', function() { sb.classList.toggle('mobile-open'); });
+  document.addEventListener('click', function(e) {
+    if (window.innerWidth <= 1100 && sb.classList.contains('mobile-open') && !sb.contains(e.target) && e.target !== menu) {
+      sb.classList.remove('mobile-open');
+    }
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && sb.classList.contains('mobile-open')) {
+      sb.classList.remove('mobile-open');
+      if (menu && menu.focus) menu.focus();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    setupGlobalListeners();
+    showPage('lecture1');
+  });
+</script>
+</body>
+</html>
